@@ -1,4 +1,5 @@
 import argparse
+import csv
 import shutil
 import zipfile
 
@@ -116,27 +117,35 @@ def listar_imagenes(particion):
     return sorted(r for r in directorio.iterdir() if r.suffix.lower() in EXTENSIONES_IMAGEN)
 
 
-def temporada_desde_nombre(nombre):
-    for temporada in CONTEO_OFICIAL_TEMPORADA:
-        if nombre.startswith(temporada):
-            return temporada
-    return "desconocida"
+def _leer_filas_train():
+    ruta = DIR_CRUDO / "Train.csv"
+    if not ruta.exists():
+        return None
+    with open(ruta, newline="", encoding="utf-8") as archivo:
+        return list(csv.DictReader(archivo))
 
 
 def verificar():
-    reporte = {"csv": {}, "imagenes": {}, "temporadas": {}}
+    reporte = {"csv": {}, "imagenes": {}, "temporadas": {}, "correspondencia": {}}
     for nombre in ARCHIVOS_ZINDI:
         ruta = DIR_CRUDO / nombre
         reporte["csv"][nombre] = ruta.stat().st_size if ruta.exists() else 0
     for particion in ("train", "test"):
-        rutas = listar_imagenes(particion)
-        reporte["imagenes"][particion] = len(rutas)
-        if particion == "train":
-            conteo = {}
-            for ruta in rutas:
-                clave = temporada_desde_nombre(ruta.name)
-                conteo[clave] = conteo.get(clave, 0) + 1
-            reporte["temporadas"] = conteo
+        reporte["imagenes"][particion] = len(listar_imagenes(particion))
+    filas = _leer_filas_train()
+    if filas is not None:
+        conteo = {}
+        for fila in filas:
+            temporada = fila.get("season") or "desconocida"
+            conteo[temporada] = conteo.get(temporada, 0) + 1
+        reporte["temporadas"] = conteo
+        nombres_csv = {fila["filename"] for fila in filas}
+        nombres_disco = {r.name for r in listar_imagenes("train")}
+        reporte["correspondencia"] = {
+            "registros_csv": len(filas),
+            "registros_sin_imagen": len(nombres_csv - nombres_disco),
+            "imagenes_sin_registro": len(nombres_disco - nombres_csv),
+        }
     return reporte
 
 
@@ -148,16 +157,25 @@ def imprimir_verificacion(reporte):
     print("Imagenes por particion")
     for particion, cantidad in reporte["imagenes"].items():
         print(f"  {particion}: {cantidad}")
-    print("Imagenes de entrenamiento por temporada")
-    total_esperado = sum(CONTEO_OFICIAL_TEMPORADA.values())
-    for temporada, esperado in CONTEO_OFICIAL_TEMPORADA.items():
-        obtenido = reporte["temporadas"].get(temporada, 0)
-        marca = "ok" if obtenido == esperado else f"difiere en {obtenido - esperado}"
-        print(f"  {temporada}: {obtenido} de {esperado} -> {marca}")
-    otras = {k: v for k, v in reporte["temporadas"].items() if k not in CONTEO_OFICIAL_TEMPORADA}
-    for temporada, obtenido in otras.items():
-        print(f"  {temporada}: {obtenido} sin referencia oficial")
-    print(f"  total: {sum(reporte['temporadas'].values())} de {total_esperado}")
+    if reporte["temporadas"]:
+        print("Imagenes de entrenamiento por temporada")
+        total_esperado = sum(CONTEO_OFICIAL_TEMPORADA.values())
+        for temporada, esperado in CONTEO_OFICIAL_TEMPORADA.items():
+            obtenido = reporte["temporadas"].get(temporada, 0)
+            marca = "coincide" if obtenido == esperado else f"difiere en {obtenido - esperado}"
+            print(f"  {temporada}: {obtenido} de {esperado} -> {marca}")
+        otras = {
+            k: v for k, v in reporte["temporadas"].items() if k not in CONTEO_OFICIAL_TEMPORADA
+        }
+        for temporada, obtenido in otras.items():
+            print(f"  {temporada}: {obtenido} sin referencia oficial")
+        print(f"  total: {sum(reporte['temporadas'].values())} de {total_esperado}")
+    if reporte["correspondencia"]:
+        print("Correspondencia entre Train.csv e imagenes en disco")
+        correspondencia = reporte["correspondencia"]
+        print(f"  registros en el csv: {correspondencia['registros_csv']}")
+        print(f"  registros sin imagen en disco: {correspondencia['registros_sin_imagen']}")
+        print(f"  imagenes en disco sin registro: {correspondencia['imagenes_sin_registro']}")
 
 
 def _main():
