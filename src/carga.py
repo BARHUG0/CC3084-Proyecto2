@@ -1,3 +1,5 @@
+import re
+
 import pandas as pd
 
 from src.config import (
@@ -6,6 +8,7 @@ from src.config import (
     DIR_PROCESADO,
     ORDEN_DANOS,
     ORDEN_ETAPAS,
+    ORDEN_TIPOS_CAPTURA,
     TEMPORADAS,
 )
 
@@ -15,25 +18,56 @@ RENOMBRES = {
     "growth_stage": "etapa",
     "damage": "dano",
     "extent": "magnitud",
+    "season": "temporada",
 }
 
 ARCHIVOS_PARTICION = {"train": "Train.csv", "test": "Test.csv"}
 
+RE_CODIFICADO = re.compile(
+    r"^L(?P<productor>\d+)F(?P<campo>\d+)C(?P<cultivo>\d+)S(?P<sitio>\d+)"
+    r"(?P<tipo>Ip|Rp|Dp)(?P<secuencia>\d+)\.jpg$",
+    re.IGNORECASE,
+)
+RE_SECUENCIAL = re.compile(
+    r"^(?P<productor>[^_]+)_(?P<tipo>initial|repeat)_(?P<n>\d+)_(?P<resto>.+)\.JPG$",
+    re.IGNORECASE,
+)
+MAPA_TIPO_CODIFICADO = {"ip": "inicial", "rp": "seguimiento", "dp": "reclamo"}
+MAPA_TIPO_SECUENCIAL = {"initial": "inicial", "repeat": "seguimiento"}
 
-def temporada_desde_archivo(nombre):
-    for temporada in TEMPORADAS:
-        if nombre.startswith(temporada):
-            return temporada
-    return pd.NA
 
-
-def id_campo_desde_archivo(nombre):
-    if nombre.startswith("L"):
-        return nombre[:-9]
-    partes = nombre.split("_")
-    if "repeat" in nombre:
-        return "_".join(partes[:4])
-    return "_".join(partes[:3])
+def descomponer_nombre_archivo(nombre):
+    coincidencia = RE_CODIFICADO.match(nombre)
+    if coincidencia:
+        productor = f"L{coincidencia.group('productor')}"
+        campo = f"F{coincidencia.group('campo')}"
+        return {
+            "formato_nombre": "codificado",
+            "id_productor": productor,
+            "id_campo": f"{productor}{campo}",
+            "codigo_cultivo": f"C{coincidencia.group('cultivo')}",
+            "id_sitio": f"S{coincidencia.group('sitio')}",
+            "tipo_captura": MAPA_TIPO_CODIFICADO[coincidencia.group("tipo").lower()],
+        }
+    coincidencia = RE_SECUENCIAL.match(nombre)
+    if coincidencia:
+        id_productor = f"U{coincidencia.group('productor')}"
+        return {
+            "formato_nombre": "secuencial",
+            "id_productor": id_productor,
+            "id_campo": id_productor,
+            "codigo_cultivo": pd.NA,
+            "id_sitio": pd.NA,
+            "tipo_captura": MAPA_TIPO_SECUENCIAL[coincidencia.group("tipo").lower()],
+        }
+    return {
+        "formato_nombre": "desconocido",
+        "id_productor": pd.NA,
+        "id_campo": pd.NA,
+        "codigo_cultivo": pd.NA,
+        "id_sitio": pd.NA,
+        "tipo_captura": pd.NA,
+    }
 
 
 def _tipar(df):
@@ -44,6 +78,12 @@ def _tipar(df):
     if "magnitud" in df:
         df["magnitud"] = pd.to_numeric(df["magnitud"], errors="coerce")
     df["temporada"] = pd.Categorical(df["temporada"], categories=TEMPORADAS, ordered=True)
+    if "tipo_captura" in df:
+        df["tipo_captura"] = pd.Categorical(
+            df["tipo_captura"], categories=ORDEN_TIPOS_CAPTURA, ordered=True
+        )
+    if "formato_nombre" in df:
+        df["formato_nombre"] = pd.Categorical(df["formato_nombre"])
     return df
 
 
@@ -56,8 +96,10 @@ def cargar_particion(particion):
     df = pd.read_csv(ruta)
     df = df.rename(columns={k: v for k, v in RENOMBRES.items() if k in df.columns})
     df["particion"] = particion
-    df["temporada"] = df["archivo"].map(temporada_desde_archivo)
-    df["id_campo"] = df["archivo"].map(id_campo_desde_archivo)
+    descomposicion = pd.DataFrame(
+        [descomponer_nombre_archivo(nombre) for nombre in df["archivo"]], index=df.index
+    )
+    df = pd.concat([df, descomposicion], axis=1)
     df["es_copia"] = df["archivo"].str.contains("Copy", case=True, regex=False)
     df["es_repeticion"] = df["archivo"].str.contains("repeat", case=True, regex=False)
     df["ruta_relativa"] = particion + "/" + df["archivo"]
