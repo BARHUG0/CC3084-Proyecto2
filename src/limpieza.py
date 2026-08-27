@@ -77,17 +77,18 @@ def validar_dominios(df):
     return pd.DataFrame(filas)
 
 
-def inconsistencias_etiqueta(df):
+def regla_estructural(df):
+    columnas = ["caso", "registros", "porcentaje"]
     if "dano" not in df or "magnitud" not in df:
-        return pd.DataFrame(columns=["caso", "registros", "porcentaje"])
+        return pd.DataFrame(columns=columnas)
     total = len(df)
-    sano_con_dano = df["dano"].eq("G") & df["magnitud"].gt(0)
-    dano_sin_magnitud = df["dano"].ne("G") & df["magnitud"].eq(0)
+    magnitud_positiva_no_sequia = df["magnitud"].gt(0) & df["dano"].ne("DR")
     sequia_sin_magnitud = df["dano"].eq("DR") & df["magnitud"].eq(0)
-    filas = [
-        ("dano declarado sano con magnitud positiva", sano_con_dano),
-        ("dano declarado adverso con magnitud cero", dano_sin_magnitud),
+    sano_con_magnitud = df["dano"].eq("G") & df["magnitud"].gt(0)
+    casos = [
+        ("magnitud positiva con dano distinto de sequia", magnitud_positiva_no_sequia),
         ("sequia declarada con magnitud cero", sequia_sin_magnitud),
+        ("crecimiento sano con magnitud positiva", sano_con_magnitud),
     ]
     return pd.DataFrame(
         [
@@ -96,8 +97,9 @@ def inconsistencias_etiqueta(df):
                 "registros": int(mascara.sum()),
                 "porcentaje": round(100 * int(mascara.sum()) / total, 3) if total else 0.0,
             }
-            for nombre, mascara in filas
-        ]
+            for nombre, mascara in casos
+        ],
+        columns=columnas,
     )
 
 
@@ -125,14 +127,15 @@ def marcar_calidad(df):
         )
     resultado["etiqueta_coherente"] = True
     if "dano" in resultado and "magnitud" in resultado:
-        resultado["etiqueta_coherente"] = ~(
-            (resultado["dano"].eq("G") & resultado["magnitud"].gt(0))
-        )
+        magnitud_positiva_no_sequia = resultado["magnitud"].gt(0) & resultado["dano"].ne("DR")
+        sequia_sin_magnitud = resultado["dano"].eq("DR") & resultado["magnitud"].eq(0)
+        resultado["etiqueta_coherente"] = ~(magnitud_positiva_no_sequia | sequia_sin_magnitud)
     resultado["apto_modelado"] = (
         resultado["existe_archivo"]
         & ~resultado["es_copia"]
         & resultado["magnitud_valida"]
         & resultado["temporada"].notna()
+        & resultado["id_campo"].notna()
     )
     return resultado
 
@@ -152,14 +155,14 @@ def bitacora(df, particion):
             "se revisa el origen antes de eliminar",
         ),
         (
-            "archivos marcados como copia",
-            int(df["es_copia"].sum()),
-            "se excluyen del modelado por duplicidad declarada",
+            "formato de nombre desconocido",
+            int(df["formato_nombre"].eq("desconocido").sum()) if "formato_nombre" in df else 0,
+            "se revisa el patron antes de derivar variables adicionales",
         ),
         (
-            "archivos marcados como repeticion",
-            int(df["es_repeticion"].sum()),
-            "se conservan y se agrupan por campo para evitar fuga",
+            "tipo de captura no identificado",
+            int(df["tipo_captura"].isna().sum()) if "tipo_captura" in df else 0,
+            "se conservan y se excluyen de los cruces que usen esta variable",
         ),
         (
             "registros sin imagen en disco",
@@ -195,6 +198,18 @@ def bitacora(df, particion):
             (
                 "etiqueta incoherente con la magnitud",
                 int((~marcado["etiqueta_coherente"]).sum()),
+                "se conservan y se analizan como ruido de etiquetado",
+            )
+        )
+        estructural = regla_estructural(df)
+        conteos = dict(zip(estructural["caso"], estructural["registros"]))
+        total_roto = conteos.get(
+            "magnitud positiva con dano distinto de sequia", 0
+        ) + conteos.get("sequia declarada con magnitud cero", 0)
+        registros.append(
+            (
+                "registros que rompen la regla estructural dano-magnitud",
+                total_roto,
                 "se conservan y se analizan como ruido de etiquetado",
             )
         )

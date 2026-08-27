@@ -49,6 +49,13 @@ TIPOS_DANO = {
 ORDEN_ETAPAS = ("S", "V", "F", "M")
 ORDEN_DANOS = ("G", "DR", "DS", "FD", "ND", "PS", "WD", "WN")
 
+TIPOS_CAPTURA = {
+    "inicial": "Fotografia de referencia inicial",
+    "seguimiento": "Fotografia de seguimiento periodico",
+    "reclamo": "Fotografia de reclamo",
+}
+ORDEN_TIPOS_CAPTURA = ("inicial", "seguimiento", "reclamo")
+
 EXTENSIONES_IMAGEN = (".jpg", ".jpeg", ".png")
 
 LADO_MINIATURA = 256
