@@ -28,13 +28,25 @@ configuracion adicional.
 
 ## Credenciales
 
-El token de Zindi se obtiene desde el enlace de descarga en la pestana de datos de la
-competencia, en el parametro `auth_token`.
+La descarga de los CSV usa un token personal de Zindi. Para generarlo:
+
+1. Cree una cuenta o inicie sesion en [zindi.africa](https://zindi.africa).
+2. Abra la pagina de la competencia
+   [CGIAR Eyes on the Ground Challenge](https://zindi.africa/competitions/cgiar-eyes-on-the-ground-challenge),
+   unase a ella y acepte las reglas. Sin aceptar los terminos la descarga falla aunque el token
+   sea valido.
+3. En la pestana **Data**, haga clic derecho sobre el enlace de descarga de cualquier archivo
+   (por ejemplo `Train.csv`) y copie la direccion del enlace. Tiene la forma
+   `https://api.zindi.world/v1/competitions/.../files/Train.csv?auth_token=<TOKEN>`.
+4. El token es el valor que sigue a `auth_token=`.
+
+Guarde el token en el almacen de credenciales del sistema con la orden `guardar`, que lo pide por
+teclado sin mostrarlo en pantalla:
 
 ```bash
 python -m src.credenciales guardar
-python -m src.credenciales borrar
 python -m src.credenciales estado
+python -m src.credenciales borrar
 ```
 
 ## Obtencion de datos
