@@ -81,6 +81,9 @@ reanudable: si se interrumpe, la misma orden continua sin reprocesar lo ya cache
 2. `02_eda_tabular.ipynb`
 3. `03_eda_imagenes.ipynb`
 
+Cada cuaderno guarda sus figuras en `informe/figuras` con el prefijo del cuaderno
+correspondiente (`02_`, `03_`).
+
 ## Fuentes
 
 [CGIAR Eyes on the Ground Challenge en Zindi](https://zindi.africa/competitions/cgiar-eyes-on-the-ground-challenge)
