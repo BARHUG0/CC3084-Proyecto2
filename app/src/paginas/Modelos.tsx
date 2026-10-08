@@ -91,7 +91,9 @@ function HistorialAjuste({ detalle }: { detalle: ModeloDetalle }) {
   if (detalle.historial_ajuste.length === 0) {
     return <Vacio titulo="Sin búsqueda de hiperparámetros" descripcion="Este modelo no registró combinaciones evaluadas." />
   }
-  const pasos = [...detalle.historial_ajuste].sort((a, b) => a.rmse_validacion - b.rmse_validacion)
+  const ordenados = [...detalle.historial_ajuste].sort((a, b) => a.rmse_validacion - b.rmse_validacion)
+  const elegido = detalle.historial_ajuste.find((paso) => paso.elegido) ?? ordenados[0]
+  const pasos = [elegido, ...ordenados.filter((paso) => paso !== elegido)]
   const filas = pasos.map((paso, indice) => ({
     combinacion: `#${indice + 1}`,
     rmse: paso.rmse_validacion,
@@ -112,7 +114,7 @@ function HistorialAjuste({ detalle }: { detalle: ModeloDetalle }) {
         }
         zoom
         formato={(v) => numero(v, 2)}
-        etiquetaX="Combinación, ordenada de mejor a peor"
+        etiquetaX="Combinación; la primera es la elegida"
         etiquetaY="Error"
       />
       <p className="text-xs text-muted-foreground">La barra terracota marca la combinación elegida.</p>
