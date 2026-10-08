@@ -6,6 +6,9 @@ DIR_DATOS = RAIZ / "data"
 DIR_CRUDO = DIR_DATOS / "crudo"
 DIR_IMAGENES = DIR_DATOS / "imagenes"
 DIR_PROCESADO = DIR_DATOS / "procesado"
+DIR_MODELOS = DIR_PROCESADO / "modelos"
+DIR_RESULTADOS = DIR_PROCESADO / "resultados"
+RUTA_CONJUNTO_MODELADO = DIR_PROCESADO / "conjunto_modelado.parquet"
 DIR_INFORME = RAIZ / "informe"
 DIR_FIGURAS = DIR_INFORME / "figuras"
 
@@ -64,6 +67,11 @@ UMBRAL_SUBEXPUESTO = 10
 UMBRAL_NITIDEZ = 100.0
 DISTANCIA_HAMMING_MAXIMA = 3
 
+DANO_SEQUIA = "DR"
+PROPORCION_PRUEBA = 0.2
+SEMILLA = 42
+TEMPORADA_PRUEBA_TEMPORAL = "SR2021"
+
 PALETA = {
     "principal": "#2E6F40",
     "secundario": "#C9A227",
@@ -85,5 +93,5 @@ SECUENCIA_COLORES = (
 
 
 def asegurar_directorios():
-    for ruta in (DIR_CRUDO, DIR_IMAGENES, DIR_PROCESADO, DIR_FIGURAS):
+    for ruta in (DIR_CRUDO, DIR_IMAGENES, DIR_PROCESADO, DIR_FIGURAS, DIR_MODELOS, DIR_RESULTADOS):
         ruta.mkdir(parents=True, exist_ok=True)
