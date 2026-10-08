@@ -1,4 +1,5 @@
 import io
+import json
 import math
 import time
 from dataclasses import dataclass, field
@@ -11,7 +12,8 @@ from fastapi import APIRouter, FastAPI, File, Form, Path as Ruta, Query, Request
 from fastapi.exceptions import RequestValidationError
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse, Response
-from PIL import Image, UnidentifiedImageError
+from PIL import Image, ImageFile, UnidentifiedImageError
+from pydantic import ValidationError
 from scipy.stats import spearmanr
 from starlette.exceptions import HTTPException
 
@@ -73,6 +75,7 @@ PREFIJO = "/api"
 ORIGENES_PERMITIDOS = ("http://localhost:5173", "http://127.0.0.1:5173")
 TIPOS_IMAGEN = ("image/jpeg", "image/png")
 TAMANO_MAXIMO_IMAGEN = 15 * 1024 * 1024
+PIXELES_MAXIMOS_IMAGEN = 50 * 1000 * 1000
 SEMILLA_MUESTRA = 42
 BORDES_MAGNITUD = [float(b) for b in np.arange(-5, 106, 10)]
 ADVERTENCIA_SIN_DIAGNOSTICO = "Sin diagnostico: se asume sequia (DR) y se estima su severidad."
@@ -105,8 +108,20 @@ class ErrorApi(Exception):
         self.estado, self.codigo, self.detalle = estado, codigo, detalle
 
 
-def _errores(*estados):
-    return {estado: {"model": Error} for estado in (*estados, 422)}
+def _errores(*estados, validacion=True):
+    respuestas = {estado: {"model": Error} for estado in estados}
+    if validacion:
+        respuestas[422] = {"model": Error}
+    return respuestas
+
+
+def _cargar_estricto(imagen):
+    anterior = ImageFile.LOAD_TRUNCATED_IMAGES
+    ImageFile.LOAD_TRUNCATED_IMAGES = False
+    try:
+        imagen.load()
+    finally:
+        ImageFile.LOAD_TRUNCATED_IMAGES = anterior
 
 
 @dataclass
@@ -147,10 +162,13 @@ class Servicio:
         marca = ruta.stat().st_mtime
         guardado = self._resultados.get(modelo_id)
         if guardado is None or guardado[0] != marca:
-            resultados = cargar_resultados(modelo_id, self.almacen.dir_resultados)
-            guardado = (marca, resultados, tabla_predicciones(resultados))
+            try:
+                resultados = cargar_resultados(modelo_id, self.almacen.dir_resultados)
+            except (json.JSONDecodeError, ValidationError):
+                resultados = None
+            guardado = (marca, None if resultados is None else (resultados, tabla_predicciones(resultados)))
             self._resultados[modelo_id] = guardado
-        return guardado[1], guardado[2]
+        return guardado[1]
 
     def resultados_obligatorios(self, modelo_id):
         self.modelo(modelo_id)
@@ -310,7 +328,7 @@ def crear_app(almacen=None):
             for nombre, (etiqueta, descripcion, tipo, rol) in VARIABLES.items()
         ]
 
-    @datos.get("/resumen", response_model=ResumenDatos, responses=_errores(503))
+    @datos.get("/resumen", response_model=ResumenDatos, responses=_errores(503, validacion=False))
     def obtener_resumen():
         conjunto = servicio.conjunto()
         sequia = conjunto[conjunto["dano"] == DANO_SEQUIA]
@@ -339,6 +357,8 @@ def crear_app(almacen=None):
         orden: CampoOrden = "id",
         descendente: bool = False,
     ):
+        if magnitud_min is not None and magnitud_max is not None and magnitud_min > magnitud_max:
+            raise ErrorApi(422, "validacion", "magnitud_min no puede ser mayor que magnitud_max.")
         tabla = servicio.conjunto()
         for columna, valor in (("temporada", temporada), ("dano", dano), ("etapa", etapa), ("subconjunto", subconjunto)):
             if valor is not None:
@@ -370,9 +390,12 @@ def crear_app(almacen=None):
         ruta = servicio.almacen.dir_imagenes / filas.iloc[0]["ruta_relativa"]
         if not ruta.exists():
             raise ErrorApi(404, "imagen_no_disponible", "La imagen no esta descargada en el servidor.")
-        with Image.open(ruta) as imagen:
-            miniatura = imagen.convert("RGB")
-            miniatura.thumbnail((lado, lado))
+        try:
+            with Image.open(ruta) as imagen:
+                miniatura = imagen.convert("RGB")
+                miniatura.thumbnail((lado, lado))
+        except (UnidentifiedImageError, OSError):
+            raise ErrorApi(404, "imagen_no_disponible", "La imagen no esta descargada en el servidor.")
         salida = io.BytesIO()
         miniatura.save(salida, format="JPEG", quality=85)
         return Response(content=salida.getvalue(), media_type="image/jpeg")
@@ -448,7 +471,7 @@ def crear_app(almacen=None):
     def listar_modelos():
         return [servicio.info_modelo(m) for m in servicio.registro.values()]
 
-    @modelos.get("/{modelo_id}", response_model=ModeloDetalle, responses=_errores(404))
+    @modelos.get("/{modelo_id}", response_model=ModeloDetalle, responses=_errores(404, validacion=False))
     def obtener_modelo(modelo_id: str):
         return servicio.info_modelo(servicio.modelo(modelo_id), detalle=True)
 
@@ -457,7 +480,9 @@ def crear_app(almacen=None):
         modelos: Annotated[list[str] | None, Query(description="Repita el parametro para varios modelos. Si se omite, se usan todos los que tienen resultados.")] = None,
         alcance: Alcance = "dr",
     ):
-        identificadores = modelos or list(servicio.registro)
+        identificadores = list(dict.fromkeys(m for m in modelos if m)) if modelos else []
+        if not identificadores:
+            identificadores = list(servicio.registro)
         for modelo_id in identificadores:
             servicio.modelo(modelo_id)
         respuesta = []
@@ -467,6 +492,8 @@ def crear_app(almacen=None):
                 continue
             resultados, tabla = encontrados
             tabla = _filtrar_alcance(tabla, alcance)
+            if tabla.empty:
+                continue
             valores = metricas(tabla["real"], tabla["predicho"])
             respuesta.append(
                 Metricas(
@@ -539,15 +566,21 @@ def crear_app(almacen=None):
             raise ErrorApi(413, "imagen_demasiado_grande", "La imagen supera el limite de 15 MB.")
         try:
             with Image.open(io.BytesIO(contenido)) as original:
+                _cargar_estricto(original)
+                if original.width * original.height > PIXELES_MAXIMOS_IMAGEN:
+                    raise ErrorApi(413, "imagen_demasiado_grande", "La imagen supera el limite de 50 megapixeles.")
                 atributos = Atributos(**{k: v for k, v in atributos_imagen(original).items() if k in ATRIBUTOS})
-            with Image.open(io.BytesIO(contenido)) as original:
                 rgb = original.convert("RGB")
         except (UnidentifiedImageError, OSError):
             raise ErrorApi(400, "imagen_invalida", "No fue posible leer la imagen.")
 
         dano = dano or None
         if modelos:
-            seleccion = [servicio.modelo(modelo_id) for modelo_id in modelos]
+            identificadores = list(dict.fromkeys(m for m in modelos if m))
+        else:
+            identificadores = []
+        if identificadores:
+            seleccion = [servicio.modelo(modelo_id) for modelo_id in identificadores]
             no_disponibles = [m.id for m in seleccion if not m.disponible]
             if no_disponibles:
                 raise ErrorApi(409, "modelo_no_disponible", f"Modelos sin artefacto entrenado: {', '.join(no_disponibles)}.")
@@ -558,23 +591,31 @@ def crear_app(almacen=None):
 
         valores = atributos.model_dump()
         predicciones = []
+        advertencias = []
+        fallos = []
         for modelo in seleccion:
-            inicio = time.perf_counter()
             try:
+                modelo.asegurar_carga()
+                inicio = time.perf_counter()
                 magnitud, regla = modelo.estimar(rgb, valores, dano)
+                tiempo_ms = round(1000 * (time.perf_counter() - inicio), 3)
             except Exception as error:
-                raise ErrorApi(500, "error_modelo", f"El modelo '{modelo.id}' fallo: {type(error).__name__}: {error}")
+                fallos.append(f"'{modelo.id}': {type(error).__name__}: {error}")
+                advertencias.append(f"El modelo '{modelo.id}' fallo y se omitio.")
+                continue
+            magnitud = round(magnitud, 2)
             predicciones.append(
                 PrediccionModelo(
                     modelo_id=modelo.id,
                     nombre=modelo.nombre,
-                    magnitud=round(magnitud, 2),
+                    magnitud=magnitud,
                     magnitud_redondeada=_magnitud_redondeada(magnitud),
                     regla_aplicada=regla,
-                    tiempo_ms=round(1000 * (time.perf_counter() - inicio), 3),
+                    tiempo_ms=tiempo_ms,
                 )
             )
-        advertencias = []
+        if not predicciones:
+            raise ErrorApi(500, "error_modelo", f"Todos los modelos fallaron: {'; '.join(fallos)}")
         if dano is None:
             advertencias.append(ADVERTENCIA_SIN_DIAGNOSTICO)
         elif dano != DANO_SEQUIA:

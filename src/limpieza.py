@@ -134,6 +134,7 @@ def marcar_calidad(df):
         resultado["existe_archivo"]
         & ~resultado["es_copia"]
         & resultado["magnitud_valida"]
+        & resultado["etiqueta_coherente"]
         & resultado["temporada"].notna()
         & resultado["id_campo"].notna()
     )
@@ -198,7 +199,7 @@ def bitacora(df, particion):
             (
                 "etiqueta incoherente con la magnitud",
                 int((~marcado["etiqueta_coherente"]).sum()),
-                "se conservan y se analizan como ruido de etiquetado",
+                "se excluyen del modelado",
             )
         )
         estructural = regla_estructural(df)
@@ -210,7 +211,7 @@ def bitacora(df, particion):
             (
                 "registros que rompen la regla estructural dano-magnitud",
                 total_roto,
-                "se conservan y se analizan como ruido de etiquetado",
+                "se excluyen del modelado",
             )
         )
     return pd.DataFrame(registros, columns=["verificacion", "registros", "decision"])

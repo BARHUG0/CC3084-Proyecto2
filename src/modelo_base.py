@@ -22,6 +22,7 @@ class ModeloMagnitud(ABC):
     def __init__(self, dir_modelos=DIR_MODELOS):
         self.ruta_artefacto = Path(dir_modelos) / f"{self.id}{self.extension}"
         self._cargado = False
+        self._marca_artefacto = None
 
     @property
     def disponible(self):
@@ -35,10 +36,15 @@ class ModeloMagnitud(ABC):
     def predecir(self, imagen, atributos):
         ...
 
+    def asegurar_carga(self):
+        marca = self.ruta_artefacto.stat().st_mtime if self.ruta_artefacto.exists() else None
+        if not self._cargado or marca != self._marca_artefacto:
+            self.cargar()
+            self._cargado = True
+            self._marca_artefacto = marca
+
     def estimar(self, imagen, atributos, dano=None):
         if dano is not None and dano != DANO_SEQUIA:
             return 0.0, True
-        if not self._cargado:
-            self.cargar()
-            self._cargado = True
+        self.asegurar_carga()
         return acotar_magnitud(self.predecir(imagen, atributos)), False
