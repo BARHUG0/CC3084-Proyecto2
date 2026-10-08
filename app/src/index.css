@@ -86,4 +86,7 @@
   h3 {
     @apply font-head;
   }
+  .recharts-legend-item-text {
+    color: var(--foreground) !important;
+  }
 }

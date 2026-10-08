@@ -210,7 +210,8 @@ function DetalleModelo({ detalle }: { detalle: ModeloDetalle }) {
 
 function ListaModelos({ modelos }: { modelos: ModeloInfo[] }) {
   const [seleccion] = useModeloSeleccionado()
-  const visibles = filtrarSeleccion(modelos, seleccion, (modelo) => modelo.id)
+  const filtrados = filtrarSeleccion(modelos, seleccion, (modelo) => modelo.id)
+  const visibles = filtrados.length > 0 ? filtrados : modelos
   const detalles = useModelosDetalle(visibles.map((modelo) => modelo.id))
   return (
     <div className="grid gap-6">
