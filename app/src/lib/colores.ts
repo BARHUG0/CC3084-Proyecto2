@@ -40,6 +40,7 @@ export function colorMagnitud(magnitud: number) {
 }
 
 export function etiquetaMagnitud(magnitud: number) {
+  if (magnitud <= 0) return "Sin daño"
   if (magnitud < 20) return "Leve"
   if (magnitud < 50) return "Moderado"
   if (magnitud < 80) return "Severo"
