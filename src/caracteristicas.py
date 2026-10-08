@@ -54,48 +54,57 @@ def calcular_hash_perceptual(gris):
     return format(int(cadena_bits, 2), "016x")
 
 
+def atributos_imagen(imagen):
+    ancho, alto = imagen.size
+    resultado = {
+        "ancho": ancho,
+        "alto": alto,
+        "formato": imagen.format,
+        "modo": imagen.mode,
+    }
+    resultado.update(leer_exif(imagen))
+    imagen.draft(None, (LADO_MINIATURA, LADO_MINIATURA))
+    miniatura = imagen.convert("RGB")
+    miniatura.thumbnail((LADO_MINIATURA, LADO_MINIATURA), Image.BILINEAR)
+
+    arreglo = np.asarray(miniatura, dtype=np.float64)
+    r, g, b = arreglo[..., 0], arreglo[..., 1], arreglo[..., 2]
+    gris = r * 0.299 + g * 0.587 + b * 0.114
+
+    resultado["aspecto"] = round(ancho / alto, 4) if alto else None
+    resultado["megapixeles"] = round(ancho * alto / 1_000_000, 4)
+    resultado["vertical"] = alto > ancho
+    resultado["media_r"] = float(r.mean())
+    resultado["media_g"] = float(g.mean())
+    resultado["media_b"] = float(b.mean())
+
+    maximo = arreglo.max(axis=-1)
+    minimo = arreglo.min(axis=-1)
+    saturacion_pixel = np.divide(
+        maximo - minimo, maximo, out=np.zeros_like(maximo), where=maximo != 0
+    )
+    resultado["saturacion"] = float(saturacion_pixel.mean())
+
+    suma = r + g + b + 1e-6
+    exceso_verde_pixel = 2 * (g / suma) - (r / suma) - (b / suma)
+    resultado["exceso_verde"] = float(exceso_verde_pixel.mean())
+
+    resultado["brillo"] = float(gris.mean())
+    resultado["contraste"] = float(gris.std())
+    resultado["prop_sobreexpuesta"] = float((gris >= UMBRAL_SOBREEXPUESTO).mean())
+    resultado["prop_subexpuesta"] = float((gris <= UMBRAL_SUBEXPUESTO).mean())
+    resultado["nitidez"] = float(ndimage.laplace(gris).var())
+    resultado["hash_perceptual"] = calcular_hash_perceptual(gris)
+    return resultado
+
+
 def describir_imagen(ruta_relativa):
     resultado = {"ruta_relativa": ruta_relativa, "error": None}
     ruta_absoluta = DIR_IMAGENES / ruta_relativa
     try:
         resultado["peso_kb"] = round(ruta_absoluta.stat().st_size / 1024, 2)
         with Image.open(ruta_absoluta) as imagen:
-            ancho, alto = imagen.size
-            resultado["ancho"], resultado["alto"] = ancho, alto
-            resultado["formato"], resultado["modo"] = imagen.format, imagen.mode
-            resultado.update(leer_exif(imagen))
-            imagen.draft(None, (LADO_MINIATURA, LADO_MINIATURA))
-            miniatura = imagen.convert("RGB")
-            miniatura.thumbnail((LADO_MINIATURA, LADO_MINIATURA), Image.BILINEAR)
-
-        arreglo = np.asarray(miniatura, dtype=np.float64)
-        r, g, b = arreglo[..., 0], arreglo[..., 1], arreglo[..., 2]
-        gris = r * 0.299 + g * 0.587 + b * 0.114
-
-        resultado["aspecto"] = round(ancho / alto, 4) if alto else None
-        resultado["megapixeles"] = round(ancho * alto / 1_000_000, 4)
-        resultado["vertical"] = alto > ancho
-        resultado["media_r"] = float(r.mean())
-        resultado["media_g"] = float(g.mean())
-        resultado["media_b"] = float(b.mean())
-
-        maximo = arreglo.max(axis=-1)
-        minimo = arreglo.min(axis=-1)
-        saturacion_pixel = np.divide(
-            maximo - minimo, maximo, out=np.zeros_like(maximo), where=maximo != 0
-        )
-        resultado["saturacion"] = float(saturacion_pixel.mean())
-
-        suma = r + g + b + 1e-6
-        exceso_verde_pixel = 2 * (g / suma) - (r / suma) - (b / suma)
-        resultado["exceso_verde"] = float(exceso_verde_pixel.mean())
-
-        resultado["brillo"] = float(gris.mean())
-        resultado["contraste"] = float(gris.std())
-        resultado["prop_sobreexpuesta"] = float((gris >= UMBRAL_SOBREEXPUESTO).mean())
-        resultado["prop_subexpuesta"] = float((gris <= UMBRAL_SUBEXPUESTO).mean())
-        resultado["nitidez"] = float(ndimage.laplace(gris).var())
-        resultado["hash_perceptual"] = calcular_hash_perceptual(gris)
+            resultado.update(atributos_imagen(imagen))
     except Exception as error:
         resultado["error"] = f"{type(error).__name__}: {error}"
     return resultado
