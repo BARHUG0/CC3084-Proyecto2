@@ -12,14 +12,14 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } f
 import { Label } from "@/components/ui/label"
 import { Slider } from "@/components/ui/slider"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
-import { ETIQUETAS_SUBCONJUNTO, useEtiquetas } from "@/lib/catalogos"
+import { ETIQUETAS_SUBCONJUNTO, useEtiquetas, useEtiquetasVariables } from "@/lib/catalogos"
 import { entero, numero } from "@/lib/formato"
+import { TODOS } from "@/lib/seleccion"
 import { cn } from "@/lib/utils"
 
 type CampoOrden = NonNullable<FiltrosRegistros["orden"]>
 type Filtros = { temporada: string; dano: string; etapa: string; subconjunto: string }
 
-const TODOS = "todos"
 const TAMANO_PAGINA = 12
 const FILTROS_INICIALES: Filtros = { temporada: TODOS, dano: TODOS, etapa: TODOS, subconjunto: TODOS }
 
@@ -64,6 +64,7 @@ function Columna({
 
 function DetalleRegistro({ registro, onCerrar }: { registro: Registro | null; onCerrar: () => void }) {
   const etiquetas = useEtiquetas()
+  const etiquetaVariable = useEtiquetasVariables()
   const [fallida, setFallida] = useState<string | null>(null)
   return (
     <Dialog open={registro !== null} onOpenChange={(abierto) => !abierto && onCerrar()}>
@@ -103,7 +104,7 @@ function DetalleRegistro({ registro, onCerrar }: { registro: Registro | null; on
                 <dt className="col-span-2 mt-2 border-t-2 pt-2 font-head">Atributos de imagen</dt>
                 {Object.entries(registro.atributos).map(([nombre, valor]) => (
                   <div key={nombre} className="contents">
-                    <dt className="text-muted-foreground">{nombre}</dt>
+                    <dt className="text-muted-foreground">{etiquetaVariable(nombre)}</dt>
                     <dd className="tabular-nums">{numero(valor, 3)}</dd>
                   </div>
                 ))}
@@ -120,6 +121,7 @@ export function TablaRegistros() {
   const etiquetas = useEtiquetas()
   const [filtros, setFiltros] = useState<Filtros>(FILTROS_INICIALES)
   const [rango, setRango] = useState<[number, number]>([0, 100])
+  const [rangoConsulta, setRangoConsulta] = useState<[number, number]>([0, 100])
   const [orden, setOrden] = useState<CampoOrden>("id")
   const [descendente, setDescendente] = useState(false)
   const [pagina, setPagina] = useState(1)
@@ -132,8 +134,8 @@ export function TablaRegistros() {
     dano: sinTodos(filtros.dano) as FiltrosRegistros["dano"],
     etapa: sinTodos(filtros.etapa) as FiltrosRegistros["etapa"],
     subconjunto: sinTodos(filtros.subconjunto) as FiltrosRegistros["subconjunto"],
-    magnitud_min: rango[0] > 0 ? rango[0] : undefined,
-    magnitud_max: rango[1] < 100 ? rango[1] : undefined,
+    magnitud_min: rangoConsulta[0] > 0 ? rangoConsulta[0] : undefined,
+    magnitud_max: rangoConsulta[1] < 100 ? rangoConsulta[1] : undefined,
     orden,
     descendente,
   })
@@ -152,6 +154,7 @@ export function TablaRegistros() {
   const limpiar = () => {
     setFiltros(FILTROS_INICIALES)
     setRango([0, 100])
+    setRangoConsulta([0, 100])
     setPagina(1)
   }
 
@@ -181,8 +184,9 @@ export function TablaRegistros() {
             max={100}
             step={10}
             minStepsBetweenThumbs={0}
-            onValueChange={(valor) => {
-              setRango([valor[0], valor[1]])
+            onValueChange={(valor) => setRango([valor[0], valor[1]])}
+            onValueCommit={(valor) => {
+              setRangoConsulta([valor[0], valor[1]])
               setPagina(1)
             }}
             aria-label="Rango de magnitud"
@@ -219,7 +223,7 @@ export function TablaRegistros() {
                     tabIndex={0}
                     onClick={() => setSeleccionado(registro)}
                     onKeyDown={(evento) => evento.key === "Enter" && setSeleccionado(registro)}
-                    className="cursor-pointer hover:bg-accent focus-visible:bg-accent focus-visible:outline-none"
+                    className="cursor-pointer hover:bg-accent focus-visible:bg-accent focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-primary"
                   >
                     <TableCell className="font-mono text-xs">{registro.id}</TableCell>
                     <TableCell>{registro.temporada}</TableCell>

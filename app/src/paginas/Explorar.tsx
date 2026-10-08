@@ -153,8 +153,9 @@ function Histograma() {
   const [variable, setVariable] = useState<VariableNumerica>("exceso_verde")
   const [por, setPor] = useState<Agrupacion>("dano")
   const [bins, setBins] = useState(20)
+  const [binsConsulta, setBinsConsulta] = useState(20)
   const [soloDr, setSoloDr] = useState(false)
-  const consulta = useDistribucion(variable, { por, bins, solo_dr: soloDr })
+  const consulta = useDistribucion(variable, { por, bins: binsConsulta, solo_dr: soloDr })
 
   const listas: Record<Agrupacion, Opcion[] | undefined> = {
     ninguno: undefined,
@@ -174,7 +175,9 @@ function Histograma() {
         />
         <Selector etiqueta="Agrupar" valor={por} onCambio={setPor} opciones={AGRUPACIONES} />
         <div className="flex w-56 flex-col gap-3">
-          <Label className="text-xs font-bold uppercase">{bins} intervalos</Label>
+          <Label className="text-xs font-bold uppercase">
+            {variable === "magnitud" ? "Intervalos fijos por decena" : `${bins} intervalos`}
+          </Label>
           <Slider
             value={[bins]}
             min={5}
@@ -182,6 +185,7 @@ function Histograma() {
             step={1}
             disabled={variable === "magnitud"}
             onValueChange={(valor) => setBins(valor[0])}
+            onValueCommit={(valor) => setBinsConsulta(valor[0])}
             aria-label="Número de intervalos"
           />
         </div>
@@ -291,7 +295,8 @@ function Correlaciones() {
                 etiquetaX="Coeficiente con la magnitud"
               />
               <p className="text-xs text-muted-foreground">
-                Verde indica relación positiva y terracota relación negativa. Se calcula sobre {entero(datos[0]?.n ?? 0)} registros.
+                Verde indica relación positiva y terracota relación negativa. El coeficiente de cada variable usa sus propios pares válidos,
+                entre {entero(Math.min(...datos.map((c) => c.n)))} y {entero(Math.max(...datos.map((c) => c.n)))} registros.
               </p>
             </>
           )
