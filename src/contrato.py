@@ -32,6 +32,17 @@ PETICIONES = (
 )
 
 
+CAMPOS_VOLATILES = ("tiempo_entrenamiento_s", "tiempo_inferencia_ms", "tiempo_ms")
+
+
+def _estabilizar(valor):
+    if isinstance(valor, dict):
+        return {clave: 0 if clave in CAMPOS_VOLATILES else _estabilizar(contenido) for clave, contenido in valor.items()}
+    if isinstance(valor, list):
+        return [_estabilizar(elemento) for elemento in valor]
+    return valor
+
+
 def documento_openapi():
     return crear_app().openapi()
 
@@ -49,7 +60,7 @@ def exportar():
         with TestClient(crear_app(almacen)) as cliente:
             for nombre, metodo, ruta, argumentos in PETICIONES:
                 respuesta = cliente.request(metodo, ruta, **argumentos)
-                _escribir(DIR_EJEMPLOS / f"{nombre}.json", respuesta.json())
+                _escribir(DIR_EJEMPLOS / f"{nombre}.json", _estabilizar(respuesta.json()))
                 indice[nombre] = {"metodo": metodo, "ruta": ruta, **argumentos, "estado": respuesta.status_code}
 
             imagen = next((almacen.dir_imagenes / "train").iterdir())
@@ -64,7 +75,7 @@ def exportar():
                         files={"imagen": (imagen.name, archivo, "image/jpeg")},
                         data=formulario,
                     )
-                _escribir(DIR_EJEMPLOS / f"{nombre}.json", respuesta.json())
+                _escribir(DIR_EJEMPLOS / f"{nombre}.json", _estabilizar(respuesta.json()))
                 indice[nombre] = {"metodo": "POST", "ruta": "/api/predecir", "data": formulario, "estado": respuesta.status_code}
     _escribir(DIR_EJEMPLOS / "indice.json", indice)
     return RUTA_OPENAPI

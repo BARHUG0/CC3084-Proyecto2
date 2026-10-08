@@ -70,11 +70,11 @@ Detalles relevantes para la interfaz:
 - `ModeloInfo.entradas` lista variables de `/api/datos/variables` o el valor `imagen_rgb` para las redes convolucionales.
 - `/api/metricas` omite los modelos sin resultados. Las rutas de un modelo concreto responden `409 sin_resultados`.
 - `ModeloDetalle` incluye `historial_ajuste`, `curva_entrenamiento` e `importancias`. Pueden venir vacios segun la familia del modelo.
-- En `/api/predecir`, si `dano` se omite o llega vacio, se asume sequia y se agrega una advertencia. Si `dano` es distinto de `DR`, cada modelo devuelve 0 con `regla_aplicada: true`.
+- En `/api/predecir`, si `dano` se omite o llega vacio, se asume sequia y se agrega una advertencia. Si `dano` es distinto de `DR`, cada modelo devuelve 0 con `regla_aplicada: true`. Si solo algunos modelos fallan, la respuesta es 200 con sus predicciones y una advertencia por cada modelo omitido; `error_modelo` se reserva para cuando fallan todos.
 
 ## Errores
 
-Todo error responde con `{"detalle": string, "codigo": string}`.
+Todo error responde con `{"detalle": string, "codigo": string}`. Los errores fuera del contrato usan la familia `http_*` (`http_404`, `http_405`), donde el sufijo es el codigo de estado.
 
 | HTTP | `codigo` | Cuando ocurre |
 |:--|:--|:--|
@@ -83,13 +83,14 @@ Todo error responde con `{"detalle": string, "codigo": string}`.
 | 404 | `registro_no_encontrado` | El identificador de registro no existe. |
 | 404 | `imagen_no_disponible` | La fotografia no esta descargada en el servidor. |
 | 404 | `http_404` | La ruta no existe. |
+| 405 | `http_405` | El metodo HTTP no esta permitido en la ruta. |
 | 409 | `sin_resultados` | El modelo aun no tiene resultados de prueba. |
 | 409 | `modelo_no_disponible` | Se pidio un modelo sin artefacto entrenado. |
 | 409 | `sin_modelos_disponibles` | Ningun modelo tiene artefacto entrenado. |
-| 413 | `imagen_demasiado_grande` | La imagen supera 15 MB. |
+| 413 | `imagen_demasiado_grande` | La imagen supera 15 MB o 50 megapixeles. |
 | 415 | `formato_no_soportado` | La imagen no es JPEG ni PNG. |
-| 422 | `validacion` | Un parametro no cumple el contrato. |
-| 500 | `error_modelo` | Un modelo fallo al predecir. |
+| 422 | `validacion` | Un parametro no cumple el contrato; incluye `magnitud_min` mayor que `magnitud_max`. |
+| 500 | `error_modelo` | Todos los modelos seleccionados fallaron al predecir. |
 | 503 | `datos_no_disponibles` | No existe el conjunto de modelado. |
 
 ## Mantener el contrato

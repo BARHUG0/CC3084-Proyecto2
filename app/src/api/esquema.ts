@@ -375,11 +375,20 @@ export interface components {
         EpocaEntrenamiento: {
             /** Epoca */
             epoca: number;
-            /** Perdida Entrenamiento */
+            /**
+             * Perdida Entrenamiento
+             * @description MSE sobre la magnitud normalizada de 0 a 1.
+             */
             perdida_entrenamiento: number;
-            /** Perdida Validacion */
+            /**
+             * Perdida Validacion
+             * @description MSE sobre la magnitud normalizada de 0 a 1.
+             */
             perdida_validacion?: number | null;
-            /** Mae Validacion */
+            /**
+             * Mae Validacion
+             * @description MAE de validacion sobre la magnitud en escala 0-100.
+             */
             mae_validacion?: number | null;
         };
         /** Error */
@@ -416,6 +425,11 @@ export interface components {
             etiqueta: string;
             /** Conteos */
             conteos: number[];
+        };
+        /** HTTPValidationError */
+        HTTPValidationError: {
+            /** Detail */
+            detail?: components["schemas"]["ValidationError"][];
         };
         /** Importancia */
         Importancia: {
@@ -538,10 +552,22 @@ export interface components {
             parametros: {
                 [key: string]: string | number | boolean | null;
             };
-            /** Rmse Validacion */
+            /**
+             * Rmse Validacion
+             * @description RMSE de validacion sobre la magnitud en escala 0-100.
+             */
             rmse_validacion: number;
-            /** Mae Validacion */
+            /**
+             * Mae Validacion
+             * @description MAE de validacion sobre la magnitud en escala 0-100.
+             */
             mae_validacion?: number | null;
+            /**
+             * Elegido
+             * @description Verdadero si esta combinacion de hiperparametros fue la seleccionada.
+             * @default false
+             */
+            elegido: boolean;
         };
         /** Prediccion */
         Prediccion: {
@@ -682,6 +708,19 @@ export interface components {
             /** Modelos Con Resultados */
             modelos_con_resultados: string[];
         };
+        /** ValidationError */
+        ValidationError: {
+            /** Location */
+            loc: (string | number)[];
+            /** Message */
+            msg: string;
+            /** Error Type */
+            type: string;
+            /** Input */
+            input?: unknown;
+            /** Context */
+            ctx?: Record<string, never>;
+        };
         /** Variable */
         Variable: {
             /** Nombre */
@@ -788,15 +827,6 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["ResumenDatos"];
-                };
-            };
-            /** @description Unprocessable Content */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Error"];
                 };
             };
             /** @description Service Unavailable */
@@ -1086,13 +1116,13 @@ export interface operations {
                     "application/json": components["schemas"]["Error"];
                 };
             };
-            /** @description Unprocessable Content */
+            /** @description Validation Error */
             422: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["Error"];
+                    "application/json": components["schemas"]["HTTPValidationError"];
                 };
             };
         };

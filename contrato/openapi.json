@@ -100,16 +100,6 @@
                 }
               }
             }
-          },
-          "422": {
-            "description": "Unprocessable Content",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Error"
-                }
-              }
-            }
           }
         }
       }
@@ -749,14 +739,14 @@
             "description": "Not Found"
           },
           "422": {
+            "description": "Validation Error",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/Error"
+                  "$ref": "#/components/schemas/HTTPValidationError"
                 }
               }
-            },
-            "description": "Unprocessable Content"
+            }
           }
         }
       }
@@ -1529,7 +1519,8 @@
           },
           "perdida_entrenamiento": {
             "type": "number",
-            "title": "Perdida Entrenamiento"
+            "title": "Perdida Entrenamiento",
+            "description": "MSE sobre la magnitud normalizada de 0 a 1."
           },
           "perdida_validacion": {
             "anyOf": [
@@ -1540,7 +1531,8 @@
                 "type": "null"
               }
             ],
-            "title": "Perdida Validacion"
+            "title": "Perdida Validacion",
+            "description": "MSE sobre la magnitud normalizada de 0 a 1."
           },
           "mae_validacion": {
             "anyOf": [
@@ -1551,7 +1543,8 @@
                 "type": "null"
               }
             ],
-            "title": "Mae Validacion"
+            "title": "Mae Validacion",
+            "description": "MAE de validacion sobre la magnitud en escala 0-100."
           }
         },
         "additionalProperties": false,
@@ -1643,6 +1636,19 @@
           "conteos"
         ],
         "title": "GrupoDistribucion"
+      },
+      "HTTPValidationError": {
+        "properties": {
+          "detail": {
+            "items": {
+              "$ref": "#/components/schemas/ValidationError"
+            },
+            "type": "array",
+            "title": "Detail"
+          }
+        },
+        "type": "object",
+        "title": "HTTPValidationError"
       },
       "Importancia": {
         "properties": {
@@ -1986,7 +1992,8 @@
           },
           "rmse_validacion": {
             "type": "number",
-            "title": "Rmse Validacion"
+            "title": "Rmse Validacion",
+            "description": "RMSE de validacion sobre la magnitud en escala 0-100."
           },
           "mae_validacion": {
             "anyOf": [
@@ -1997,7 +2004,14 @@
                 "type": "null"
               }
             ],
-            "title": "Mae Validacion"
+            "title": "Mae Validacion",
+            "description": "MAE de validacion sobre la magnitud en escala 0-100."
+          },
+          "elegido": {
+            "type": "boolean",
+            "title": "Elegido",
+            "description": "Verdadero si esta combinacion de hiperparametros fue la seleccionada.",
+            "default": false
           }
         },
         "additionalProperties": false,
@@ -2438,6 +2452,46 @@
           "modelos_con_resultados"
         ],
         "title": "Salud"
+      },
+      "ValidationError": {
+        "properties": {
+          "loc": {
+            "items": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "integer"
+                }
+              ]
+            },
+            "type": "array",
+            "title": "Location"
+          },
+          "msg": {
+            "type": "string",
+            "title": "Message"
+          },
+          "type": {
+            "type": "string",
+            "title": "Error Type"
+          },
+          "input": {
+            "title": "Input"
+          },
+          "ctx": {
+            "type": "object",
+            "title": "Context"
+          }
+        },
+        "type": "object",
+        "required": [
+          "loc",
+          "msg",
+          "type"
+        ],
+        "title": "ValidationError"
       },
       "Variable": {
         "properties": {

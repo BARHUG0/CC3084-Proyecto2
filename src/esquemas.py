@@ -161,15 +161,16 @@ class Correlacion(Esquema):
 
 class PasoAjuste(Esquema):
     parametros: dict[str, ValorHiperparametro]
-    rmse_validacion: float
-    mae_validacion: float | None = None
+    rmse_validacion: float = Field(description="RMSE de validacion sobre la magnitud en escala 0-100.")
+    mae_validacion: float | None = Field(default=None, description="MAE de validacion sobre la magnitud en escala 0-100.")
+    elegido: bool = Field(default=False, description="Verdadero si esta combinacion de hiperparametros fue la seleccionada.")
 
 
 class EpocaEntrenamiento(Esquema):
     epoca: int
-    perdida_entrenamiento: float
-    perdida_validacion: float | None = None
-    mae_validacion: float | None = None
+    perdida_entrenamiento: float = Field(description="MSE sobre la magnitud normalizada de 0 a 1.")
+    perdida_validacion: float | None = Field(default=None, description="MSE sobre la magnitud normalizada de 0 a 1.")
+    mae_validacion: float | None = Field(default=None, description="MAE de validacion sobre la magnitud en escala 0-100.")
 
 
 class Importancia(Esquema):

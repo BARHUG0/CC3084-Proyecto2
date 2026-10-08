@@ -4,7 +4,7 @@ import numpy as np
 import pandas as pd
 
 from src.config import DANO_SEQUIA, DIR_RESULTADOS
-from src.esquemas import ResultadosModelo
+from src.esquemas import PasoAjuste, ResultadosModelo
 
 
 def metricas(real, predicho):
@@ -63,6 +63,9 @@ def guardar_resultados(
     predicho = np.clip(np.asarray(predicho, dtype=float), 0, 100)
     if predicho.size != len(prueba):
         raise ValueError("Debe existir una prediccion por cada registro de prueba.")
+    historial = [paso if isinstance(paso, PasoAjuste) else PasoAjuste(**paso) for paso in historial_ajuste]
+    if historial and not any(paso.elegido for paso in historial):
+        min(historial, key=lambda paso: paso.rmse_validacion).elegido = True
     resultados = ResultadosModelo(
         modelo_id=modelo_id,
         tiempo_entrenamiento_s=float(tiempo_entrenamiento_s),
@@ -79,7 +82,7 @@ def guardar_resultados(
             }
             for fila, valor in zip(prueba.itertuples(index=False), predicho)
         ],
-        historial_ajuste=list(historial_ajuste),
+        historial_ajuste=historial,
         curva_entrenamiento=list(curva_entrenamiento),
         importancias=list(importancias),
     )
