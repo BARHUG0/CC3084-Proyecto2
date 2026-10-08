@@ -1,7 +1,6 @@
 import { useState } from "react"
-import type { UseQueryResult } from "@tanstack/react-query"
 
-import type { AgrupacionError, Alcance, ErrorGrupo, Metricas, ModeloInfo, PuntoPrediccion } from "@/api/cliente"
+import type { AgrupacionError, Alcance, Metricas, ModeloInfo, PuntoPrediccion } from "@/api/cliente"
 import { useErrores, useMetricas, useModelos, usePredicciones } from "@/api/consultas"
 import { Bloque } from "@/components/Bloque"
 import { Alternador, Selector } from "@/components/Controles"
@@ -11,6 +10,7 @@ import { GraficoBarras, type FilaGrafico } from "@/components/graficos/GraficoBa
 import { GraficoDispersion } from "@/components/graficos/GraficoDispersion"
 import { Metrica } from "@/components/Metrica"
 import { SelectorModelos } from "@/components/SelectorModelos"
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { colorSerie } from "@/lib/colores"
 import { duracion, entero, numero } from "@/lib/formato"
@@ -30,12 +30,34 @@ const AGRUPACIONES: { valor: AgrupacionError; etiqueta: string }[] = [
   { valor: "magnitud", etiqueta: "Magnitud real" },
 ]
 
-function combinar<T>(consultas: UseQueryResult<T>[]) {
+type ConsultaModelo<T> = { modelo: ModeloColor; datos: T; error: unknown; isPending: boolean }
+type ConsultaFallida = { modelo: ModeloColor; error: unknown }
+
+function porModelo<T>(consultas: { data: T | undefined; error: unknown; isPending: boolean }[], modelos: ModeloColor[]) {
+  const lista = modelos.map((modelo, i) => ({
+    modelo,
+    datos: consultas[i].data,
+    error: consultas[i].error,
+    isPending: consultas[i].isPending,
+  }))
   return {
-    isPending: consultas.some((consulta) => consulta.isPending),
-    error: consultas.find((consulta) => consulta.error)?.error ?? null,
-    data: consultas.every((consulta) => consulta.data !== undefined) ? consultas.map((consulta) => consulta.data as T) : undefined,
+    isPending: lista.every((c) => c.datos === undefined && c.isPending),
+    disponibles: lista.filter((c): c is ConsultaModelo<T> => c.datos !== undefined),
+    fallidos: lista.filter((c) => c.datos === undefined && !c.isPending).map(({ modelo, error }) => ({ modelo, error })),
   }
+}
+
+function NotaFallidos({ fallidos }: { fallidos: ConsultaFallida[] }) {
+  if (fallidos.length === 0) return null
+  return (
+    <Alert status="warning">
+      <AlertTitle className="font-head">Modelos sin respuesta</AlertTitle>
+      <AlertDescription>
+        No se pudieron cargar los datos de {fallidos.map((f) => f.modelo.nombre).join(", ")}. El gráfico muestra solo los modelos
+        disponibles.
+      </AlertDescription>
+    </Alert>
+  )
 }
 
 function mejor(metricas: Metricas[], clave: "mae" | "rmse" | "r2" | "tiempo_inferencia_ms") {
@@ -51,6 +73,7 @@ function TablaMetricas({ metricas, modelos }: { metricas: Metricas[]; modelos: M
     { clave: "r2", titulo: "R²", formato: (m: Metricas) => numero(m.r2, 3) },
     { clave: "tiempo_inferencia_ms", titulo: "Inferencia", formato: (m: Metricas) => `${numero(m.tiempo_inferencia_ms, 3)} ms` },
   ] as const
+  const mejores = Object.fromEntries(columnas.map((columna) => [columna.clave, mejor(metricas, columna.clave)]))
   return (
     <div className="self-start overflow-x-auto border-2">
       <Table>
@@ -79,7 +102,7 @@ function TablaMetricas({ metricas, modelos }: { metricas: Metricas[]; modelos: M
                 </TableCell>
                 <TableCell className="text-right">{entero(metrica.n)}</TableCell>
                 {columnas.map((columna) => {
-                  const destacado = metrica[columna.clave] !== null && metrica[columna.clave] === mejor(metricas, columna.clave)
+                  const destacado = metrica[columna.clave] !== null && metrica[columna.clave] === mejores[columna.clave]
                   return (
                     <TableCell key={columna.clave} className={cn("text-right", destacado && "bg-accent/50 font-bold")}>
                       {columna.formato(metrica)}
@@ -140,50 +163,61 @@ function ResumenMetricas({ alcance, modelos }: { alcance: Alcance; modelos: Mode
 }
 
 function histogramaResiduos(puntos: PuntoPrediccion[]) {
-  const bordes = Array.from({ length: 21 }, (_, i) => -100 + i * 10)
+  const bordes = Array.from({ length: 22 }, (_, i) => -105 + i * 10)
   const conteos = bordes.slice(0, -1).map(() => 0)
   for (const punto of puntos) {
-    const indice = Math.min(conteos.length - 1, Math.max(0, Math.floor((punto.error + 100) / 10)))
+    const indice = Math.min(conteos.length - 1, Math.max(0, Math.floor((punto.error + 105) / 10)))
     conteos[indice] += 1
   }
   return conteos
 }
 
 function Predicciones({ alcance, modelos }: { alcance: Alcance; modelos: ModeloColor[] }) {
-  const consulta = combinar(usePredicciones(modelos.map((m) => m.id), alcance))
-  if (consulta.isPending) return <Cargando alto="h-96" />
-  if (!consulta.data) return <AvisoError error={consulta.error} />
-  const respuestas = consulta.data
-  const grupos = modelos.map((modelo, i) => ({
+  const resultado = porModelo(usePredicciones(modelos.map((m) => m.id), alcance), modelos)
+  if (resultado.isPending) return <Cargando alto="h-96" />
+  if (resultado.disponibles.length === 0) return <AvisoError error={resultado.fallidos[0]?.error} />
+  const disponibles = resultado.disponibles
+  if (disponibles.every(({ datos }) => datos.length === 0)) {
+    return (
+      <div className="flex flex-col gap-4">
+        <NotaFallidos fallidos={resultado.fallidos} />
+        <Vacio titulo="Sin predicciones" descripcion="No hay registros de prueba para este alcance." />
+      </div>
+    )
+  }
+  const grupos = disponibles.map(({ modelo, datos }) => ({
     nombre: modelo.nombre,
     color: modelo.color,
-    puntos: respuestas[i].map((p) => ({ x: p.real, y: p.predicho })),
+    puntos: datos.map((p) => ({ x: p.real, y: p.predicho })),
   }))
-  const residuos = modelos.map((modelo, i) => ({ modelo, conteos: histogramaResiduos(respuestas[i]) }))
+  const residuos = disponibles.map(({ modelo, datos }) => ({ modelo, conteos: histogramaResiduos(datos) }))
   const filasResiduos: FilaGrafico[] = residuos[0].conteos.map((_, indice) => {
-    const fila: FilaGrafico = { error: String(-95 + indice * 10) }
+    const fila: FilaGrafico = { error: String(-100 + indice * 10) }
     for (const { modelo, conteos } of residuos) fila[modelo.id] = conteos[indice]
     return fila
   })
   return (
-    <div className="grid gap-6 xl:grid-cols-2">
-      <div>
-        <h3 className="mb-1 font-head">Real contra predicho</h3>
-        <p className="mb-3 text-sm text-muted-foreground">La diagonal punteada es la predicción perfecta.</p>
-        <GraficoDispersion grupos={grupos} etiquetaX="Magnitud real" etiquetaY="Magnitud predicha" diagonal={[0, 100]} dominio={[0, 100]} alto={380} />
-      </div>
-      <div>
-        <h3 className="mb-1 font-head">Distribución del error</h3>
-        <p className="mb-3 text-sm text-muted-foreground">Predicho menos real. A la derecha del cero el modelo sobreestima.</p>
-        <GraficoBarras
-          datos={filasResiduos}
-          categoria="error"
-          series={modelos.map((m) => ({ clave: m.id, nombre: m.nombre, color: m.color }))}
-          alto={380}
-          formato={(v) => entero(v)}
-          etiquetaX="Error, centro del intervalo"
-          etiquetaY="Registros"
-        />
+    <div className="flex flex-col gap-4">
+      <NotaFallidos fallidos={resultado.fallidos} />
+      <div className="grid gap-6 xl:grid-cols-2">
+        <div>
+          <h3 className="mb-1 font-head">Real contra predicho</h3>
+          <p className="mb-3 text-sm text-muted-foreground">La diagonal punteada es la predicción perfecta.</p>
+          <GraficoDispersion grupos={grupos} etiquetaX="Magnitud real" etiquetaY="Magnitud predicha" diagonal={[0, 100]} dominio={[0, 100]} alto={380} />
+        </div>
+        <div>
+          <h3 className="mb-1 font-head">Distribución del error</h3>
+          <p className="mb-3 text-sm text-muted-foreground">Predicho menos real. A la derecha del cero el modelo sobreestima.</p>
+          <GraficoBarras
+            datos={filasResiduos}
+            categoria="error"
+            series={disponibles.map(({ modelo }) => ({ clave: modelo.id, nombre: modelo.nombre, color: modelo.color }))}
+            alto={380}
+            formato={(v) => entero(v)}
+            etiquetaX="Error, centro del intervalo"
+            etiquetaY="Registros"
+          />
+        </div>
       </div>
     </div>
   )
@@ -192,38 +226,44 @@ function Predicciones({ alcance, modelos }: { alcance: Alcance; modelos: ModeloC
 function ErroresPorGrupo({ alcance, modelos }: { alcance: Alcance; modelos: ModeloColor[] }) {
   const [por, setPor] = useState<AgrupacionError>("temporada")
   const [medida, setMedida] = useState<"mae" | "rmse">("mae")
-  const consulta = combinar(useErrores(modelos.map((m) => m.id), por, alcance))
+  const resultado = porModelo(useErrores(modelos.map((m) => m.id), por, alcance), modelos)
 
   let contenido
-  if (consulta.isPending) contenido = <Cargando alto="h-80" />
-  else if (!consulta.data) contenido = <AvisoError error={consulta.error} />
+  if (resultado.isPending) contenido = <Cargando alto="h-80" />
+  else if (resultado.disponibles.length === 0) contenido = <AvisoError error={resultado.fallidos[0]?.error} />
   else {
-    const respuestas: ErrorGrupo[][] = consulta.data
-    const grupos = respuestas[0] ?? []
-    const filas = grupos.map((grupo) => {
+    const disponibles = resultado.disponibles
+    const grupos = new Map<string, { grupo: string; etiqueta: string; n: number }>()
+    for (const { datos } of disponibles) {
+      for (const grupo of datos) if (!grupos.has(grupo.grupo)) grupos.set(grupo.grupo, grupo)
+    }
+    const filas = [...grupos.values()].map((grupo) => {
       const fila: FilaGrafico = { grupo: grupo.etiqueta }
-      modelos.forEach((modelo, i) => {
-        fila[modelo.id] = respuestas[i].find((g) => g.grupo === grupo.grupo)?.[medida] ?? null
-      })
+      for (const { modelo, datos } of disponibles) {
+        fila[modelo.id] = datos.find((g) => g.grupo === grupo.grupo)?.[medida] ?? null
+      }
       return fila
     })
-    contenido =
-      filas.length === 0 ? (
-        <Vacio titulo="Sin grupos" />
-      ) : (
-        <>
-          <GraficoBarras
-            datos={filas}
-            categoria="grupo"
-            series={modelos.map((m) => ({ clave: m.id, nombre: m.nombre, color: m.color }))}
-            formato={(v) => numero(v, 1)}
-            etiquetaY={medida.toUpperCase()}
-          />
-          <p className="text-xs text-muted-foreground">
-            Registros por grupo: {grupos.map((g) => `${g.etiqueta} ${entero(g.n)}`).join(", ")}.
-          </p>
-        </>
-      )
+    contenido = (
+      <>
+        {filas.length === 0 ? (
+          <Vacio titulo="Sin grupos" />
+        ) : (
+          <>
+            <GraficoBarras
+              datos={filas}
+              categoria="grupo"
+              series={disponibles.map(({ modelo }) => ({ clave: modelo.id, nombre: modelo.nombre, color: modelo.color }))}
+              formato={(v) => numero(v, 1)}
+              etiquetaY={medida.toUpperCase()}
+            />
+            <p className="text-xs text-muted-foreground">
+              Registros por grupo: {[...grupos.values()].map((g) => `${g.etiqueta} ${entero(g.n)}`).join(", ")}.
+            </p>
+          </>
+        )}
+      </>
+    )
   }
 
   return (
@@ -241,6 +281,7 @@ function ErroresPorGrupo({ alcance, modelos }: { alcance: Alcance; modelos: Mode
         />
       </div>
       {contenido}
+      <NotaFallidos fallidos={resultado.fallidos} />
     </div>
   )
 }
