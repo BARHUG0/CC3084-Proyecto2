@@ -104,7 +104,7 @@ function TablaVariables() {
   return (
     <Contenido consulta={variables} esVacio={(d) => d.length === 0}>
       {(datos) => (
-        <div className="max-h-[28rem] overflow-auto border-2">
+        <div tabIndex={0} role="region" aria-label="Tabla de variables" className="max-h-[28rem] overflow-auto border-2">
           <Table>
             <TableHeader className="sticky top-0 z-10">
               <TableRow className="bg-secondary hover:bg-secondary">

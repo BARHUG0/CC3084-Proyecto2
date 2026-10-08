@@ -116,7 +116,7 @@ function HistorialAjuste({ detalle }: { detalle: ModeloDetalle }) {
         etiquetaY="Error"
       />
       <p className="text-xs text-muted-foreground">La barra terracota marca la combinación elegida.</p>
-      <div className="max-h-72 overflow-auto border-2">
+      <div tabIndex={0} role="region" aria-label="Combinaciones evaluadas" className="max-h-72 overflow-auto border-2">
         <Table>
           <TableHeader className="sticky top-0">
             <TableRow className="bg-secondary hover:bg-secondary">
