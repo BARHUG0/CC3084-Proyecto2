@@ -5,7 +5,6 @@ import { PALETA } from "@/lib/colores"
 export const TICK = { fill: PALETA.tinta, fontSize: 12, fontFamily: "Space Grotesk" }
 export const EJE = { stroke: PALETA.tinta, strokeWidth: 2, tick: TICK, tickLine: { stroke: PALETA.tinta } }
 export const REJILLA = { stroke: PALETA.tinta, strokeOpacity: 0.12, strokeDasharray: "4 4" }
-export const LEYENDA = { wrapperStyle: { fontFamily: "Space Grotesk", fontSize: 13, cursor: "pointer", paddingTop: 8 } }
 export const BORDE_BARRA = { stroke: PALETA.tinta, strokeWidth: 2 }
 
 export type Serie = { clave: string; nombre: string; color: string }

@@ -1,7 +1,8 @@
-import { Bar, BarChart, Brush, CartesianGrid, Cell, Legend, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts"
+import { Bar, BarChart, Brush, CartesianGrid, Cell, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts"
 
+import { LeyendaSeries } from "@/components/graficos/LeyendaSeries"
 import { TooltipNeo } from "@/components/graficos/TooltipNeo"
-import { BORDE_BARRA, EJE, etiquetaEje, LEYENDA, REJILLA, useSeriesOcultas, type Serie } from "@/components/graficos/tema"
+import { BORDE_BARRA, EJE, etiquetaEje, REJILLA, useSeriesOcultas, type Serie } from "@/components/graficos/tema"
 import { PALETA } from "@/lib/colores"
 
 export type FilaGrafico = Record<string, string | number | null>
@@ -40,44 +41,46 @@ export function GraficoBarras({
   const ejeValor = { ...EJE, type: "number" as const, tickFormatter: formato }
 
   return (
-    <ResponsiveContainer width="100%" height={alto}>
-      <BarChart
-        data={datos}
-        layout={horizontal ? "vertical" : "horizontal"}
-        margin={{ top: 8, right: 16, bottom: etiquetaX ? 24 : 8, left: etiquetaY ? 16 : 0 }}
-      >
-        <CartesianGrid {...REJILLA} vertical={horizontal} horizontal={!horizontal} />
-        {horizontal ? (
-          <>
-            <XAxis {...ejeValor} label={etiquetaX ? etiquetaEje(etiquetaX) : undefined} />
-            <YAxis {...ejeCategoria} width={anchoCategoria} />
-          </>
-        ) : (
-          <>
-            <XAxis {...ejeCategoria} height={conBrush ? 46 : 30} label={etiquetaCategoria || undefined} />
-            <YAxis {...ejeValor} label={etiquetaY ? etiquetaEje(etiquetaY, true) : undefined} />
-          </>
-        )}
-        <Tooltip content={<TooltipNeo formato={formato} />} cursor={{ fill: PALETA.tinta, fillOpacity: 0.06 }} />
-        {series.length > 1 && <Legend {...LEYENDA} onClick={(entrada) => alternar(entrada.dataKey)} />}
-        {series.map((serie) => (
-          <Bar
-            key={serie.clave}
-            dataKey={serie.clave}
-            name={serie.nombre}
-            fill={serie.color}
-            stackId={apilado ? "pila" : undefined}
-            hide={ocultas.has(serie.clave)}
-            isAnimationActive={false}
-            {...BORDE_BARRA}
-          >
-            {colorBarra && datos.map((fila, indice) => <Cell key={indice} fill={colorBarra(fila, serie)} />)}
-          </Bar>
-        ))}
-        {conBrush && (
-          <Brush dataKey={categoria} height={24} stroke={PALETA.tinta} fill={PALETA.fondo} travellerWidth={10} />
-        )}
-      </BarChart>
-    </ResponsiveContainer>
+    <div>
+      <ResponsiveContainer width="100%" height={alto}>
+        <BarChart
+          data={datos}
+          layout={horizontal ? "vertical" : "horizontal"}
+          margin={{ top: 8, right: 16, bottom: etiquetaX ? 24 : 8, left: etiquetaY ? 16 : 0 }}
+        >
+          <CartesianGrid {...REJILLA} vertical={horizontal} horizontal={!horizontal} />
+          {horizontal ? (
+            <>
+              <XAxis {...ejeValor} label={etiquetaX ? etiquetaEje(etiquetaX) : undefined} />
+              <YAxis {...ejeCategoria} width={anchoCategoria} />
+            </>
+          ) : (
+            <>
+              <XAxis {...ejeCategoria} height={conBrush ? 46 : 30} label={etiquetaCategoria || undefined} />
+              <YAxis {...ejeValor} label={etiquetaY ? etiquetaEje(etiquetaY, true) : undefined} />
+            </>
+          )}
+          <Tooltip content={<TooltipNeo formato={formato} />} cursor={{ fill: PALETA.tinta, fillOpacity: 0.06 }} />
+          {series.map((serie) => (
+            <Bar
+              key={serie.clave}
+              dataKey={serie.clave}
+              name={serie.nombre}
+              fill={serie.color}
+              stackId={apilado ? "pila" : undefined}
+              hide={ocultas.has(serie.clave)}
+              isAnimationActive={false}
+              {...BORDE_BARRA}
+            >
+              {colorBarra && datos.map((fila, indice) => <Cell key={indice} fill={colorBarra(fila, serie)} />)}
+            </Bar>
+          ))}
+          {conBrush && (
+            <Brush dataKey={categoria} height={24} stroke={PALETA.tinta} fill={PALETA.fondo} travellerWidth={10} ariaLabel="Rango visible del gráfico" />
+          )}
+        </BarChart>
+      </ResponsiveContainer>
+      <LeyendaSeries series={series} ocultas={ocultas} onAlternar={alternar} />
+    </div>
   )
 }

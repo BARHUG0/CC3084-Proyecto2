@@ -9,14 +9,14 @@ export const PALETA = {
 } as const
 
 export const SECUENCIA_COLORES = [
-  "#2E6F40",
-  "#C9A227",
-  "#8C3B2E",
-  "#3C6E93",
-  "#7A5C99",
-  "#B87333",
-  "#5B8C5A",
-  "#A6A6A6",
+  "#0072B2",
+  "#E69F00",
+  "#009E73",
+  "#D55E00",
+  "#CC79A7",
+  "#56B4E9",
+  "#F0E442",
+  "#999999",
 ] as const
 
 const PARADAS_MAGNITUD = [
