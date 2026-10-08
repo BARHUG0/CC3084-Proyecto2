@@ -16,7 +16,6 @@ import { Spinner } from "@/components/ui/spinner"
 import { Table, TableBody, TableCell, TableRow } from "@/components/ui/table"
 import { useEtiquetas, useEtiquetasVariables } from "@/lib/catalogos"
 import { colorMagnitud, etiquetaMagnitud } from "@/lib/colores"
-import { useNotificarError } from "@/lib/errores"
 import { numero } from "@/lib/formato"
 import { cn } from "@/lib/utils"
 
@@ -224,7 +223,6 @@ function Formulario({ modelos }: { modelos: ModeloInfo[] }) {
   const [archivo, setArchivo] = useState<File | null>(null)
   const [dano, setDano] = useState<string>(SIN_DIAGNOSTICO)
   const [elegidos, setElegidos] = useState<string[]>(() => disponibles.map((modelo) => modelo.id))
-  useNotificarError(prediccion.error)
 
   const opcionesDano = [
     { valor: SIN_DIAGNOSTICO, etiqueta: "No lo sé" },
@@ -253,14 +251,29 @@ function Formulario({ modelos }: { modelos: ModeloInfo[] }) {
               prediccion.reset()
             }}
           />
-          <Selector etiqueta="Diagnóstico conocido" valor={dano} onCambio={setDano} opciones={opcionesDano} />
+          <Selector
+            etiqueta="Diagnóstico conocido"
+            valor={dano}
+            onCambio={(nuevo) => {
+              setDano(nuevo)
+              prediccion.reset()
+            }}
+            opciones={opcionesDano}
+          />
           {disponibles.length === 0 ? (
             <Alert status="warning">
               <AlertTitle className="font-head">No hay modelos entrenados</AlertTitle>
               <AlertDescription>Coloque al menos un artefacto entrenado en data/procesado/modelos/ para predecir.</AlertDescription>
             </Alert>
           ) : (
-            <SeleccionModelos modelos={modelos} elegidos={elegidos} onCambio={setElegidos} />
+            <SeleccionModelos
+              modelos={modelos}
+              elegidos={elegidos}
+              onCambio={(ids) => {
+                setElegidos(ids)
+                prediccion.reset()
+              }}
+            />
           )}
           <div className="flex flex-wrap gap-3">
             <Button onClick={enviar} disabled={!listo} className="flex-1">

@@ -1,9 +1,6 @@
-import { useEffect } from "react"
-import { toast } from "sonner"
-
 import { CODIGO_SIN_CONEXION, ErrorApi } from "@/api/cliente"
 
-const INSTRUCCIONES: Record<string, { titulo: string; instruccion: string }> = {
+const INSTRUCCIONES: Record<string, { titulo: string; instruccion?: string }> = {
   [CODIGO_SIN_CONEXION]: {
     titulo: "La API no responde",
     instruccion: "Levante el backend con «uvicorn src.api:app --port 8000» o con «python -m src.demo».",
@@ -40,6 +37,21 @@ const INSTRUCCIONES: Record<string, { titulo: string; instruccion: string }> = {
     titulo: "Imagen demasiado grande",
     instruccion: "Reduzca la fotografía a menos de 15 MB.",
   },
+  validacion: {
+    titulo: "Parámetros no válidos",
+    instruccion: "Revise los filtros elegidos e inténtelo de nuevo.",
+  },
+  modelo_no_encontrado: {
+    titulo: "Modelo desconocido",
+    instruccion: "Actualice la página y vuelva a elegir el modelo.",
+  },
+  error_modelo: {
+    titulo: "El modelo falló",
+    instruccion: "Inténtelo de nuevo o elija otro modelo.",
+  },
+  http_404: {
+    titulo: "Recurso no encontrado",
+  },
 }
 
 export const CODIGOS_ADVERTENCIA = new Set(["datos_no_disponibles", "sin_resultados", "sin_modelos_disponibles"])
@@ -55,13 +67,4 @@ export function describirError(error: unknown) {
     }
   }
   return { titulo: "Error inesperado", detalle: String(error), instruccion: undefined, codigo: "desconocido" }
-}
-
-export function useNotificarError(error: unknown) {
-  useEffect(() => {
-    if (!error) return
-    const { titulo, detalle, codigo } = describirError(error)
-    if (CODIGOS_ADVERTENCIA.has(codigo)) return
-    toast.error(titulo, { description: detalle, id: `${codigo}:${detalle}` })
-  }, [error])
 }
