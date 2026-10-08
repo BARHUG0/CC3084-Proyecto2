@@ -1,7 +1,7 @@
 import { useMemo } from "react"
 
 import type { Catalogos } from "@/api/cliente"
-import { useCatalogos } from "@/api/consultas"
+import { useCatalogos, useVariables } from "@/api/consultas"
 
 export const VARIABLES_NUMERICAS = [
   "magnitud",
@@ -23,6 +23,16 @@ export const ETIQUETAS_SUBCONJUNTO: Record<string, string> = { entrenamiento: "E
 
 function mapa(opciones: Catalogos["danos"] | undefined) {
   return Object.fromEntries((opciones ?? []).map((opcion) => [opcion.codigo, opcion.nombre]))
+}
+
+export const FAMILIAS: Record<string, string> = { referencia: "Referencia", tabular: "Tabular", cnn: "Red convolucional" }
+
+export function useEtiquetasVariables() {
+  const { data } = useVariables()
+  return useMemo(() => {
+    const etiquetas = Object.fromEntries((data ?? []).map((variable) => [variable.nombre, variable.etiqueta]))
+    return (nombre: string) => etiquetas[nombre] ?? nombre
+  }, [data])
 }
 
 export function useEtiquetas() {

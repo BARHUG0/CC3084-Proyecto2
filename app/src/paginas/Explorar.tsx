@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react"
+import { useState } from "react"
 
 import type { Conteo, Opcion, ResumenDatos, VariableNumerica } from "@/api/cliente"
 import { useCorrelaciones, useDispersion, useDistribucion, useModelos, useResumen, useVariables } from "@/api/consultas"
@@ -14,7 +14,7 @@ import { Label } from "@/components/ui/label"
 import { Slider } from "@/components/ui/slider"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { VARIABLES_NUMERICAS, useEtiquetas } from "@/lib/catalogos"
+import { VARIABLES_NUMERICAS, useEtiquetas, useEtiquetasVariables } from "@/lib/catalogos"
 import { colorMagnitud, colorSerie, PALETA } from "@/lib/colores"
 import { entero, numero } from "@/lib/formato"
 
@@ -26,14 +26,6 @@ const AGRUPACIONES: { valor: Agrupacion; etiqueta: string }[] = [
   { valor: "temporada", etiqueta: "Por temporada" },
   { valor: "etapa", etiqueta: "Por etapa" },
 ]
-
-function useEtiquetasVariables() {
-  const { data } = useVariables()
-  return useMemo(() => {
-    const mapa = Object.fromEntries((data ?? []).map((v) => [v.nombre, v.etiqueta]))
-    return (nombre: string) => mapa[nombre] ?? nombre
-  }, [data])
-}
 
 function colorCategoria(lista: Opcion[] | undefined, codigo: string) {
   const indice = (lista ?? []).findIndex((opcion) => opcion.codigo === codigo)

@@ -34,6 +34,8 @@ export function GraficoBarras({
   anchoCategoria?: number
 }) {
   const { ocultas, alternar } = useSeriesOcultas()
+  const conBrush = zoom && datos.length > 12
+  const etiquetaCategoria = etiquetaX && { ...etiquetaEje(etiquetaX), offset: conBrush ? 2 : -10 }
   const ejeCategoria = { ...EJE, dataKey: categoria, type: "category" as const, interval: datos.length > 12 ? ("preserveStartEnd" as const) : 0, minTickGap: 12 }
   const ejeValor = { ...EJE, type: "number" as const, tickFormatter: formato }
 
@@ -52,7 +54,7 @@ export function GraficoBarras({
           </>
         ) : (
           <>
-            <XAxis {...ejeCategoria} label={etiquetaX ? etiquetaEje(etiquetaX) : undefined} />
+            <XAxis {...ejeCategoria} height={conBrush ? 46 : 30} label={etiquetaCategoria || undefined} />
             <YAxis {...ejeValor} label={etiquetaY ? etiquetaEje(etiquetaY, true) : undefined} />
           </>
         )}
@@ -72,7 +74,7 @@ export function GraficoBarras({
             {colorBarra && datos.map((fila, indice) => <Cell key={indice} fill={colorBarra(fila, serie)} />)}
           </Bar>
         ))}
-        {zoom && datos.length > 12 && (
+        {conBrush && (
           <Brush dataKey={categoria} height={24} stroke={PALETA.tinta} fill={PALETA.fondo} travellerWidth={10} />
         )}
       </BarChart>
