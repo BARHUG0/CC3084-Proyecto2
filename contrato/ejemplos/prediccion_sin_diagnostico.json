@@ -1,0 +1,30 @@
+{
+  "dano_considerado": null,
+  "atributos": {
+    "exceso_verde": 0.694620044414218,
+    "saturacion": 0.6467381347104487,
+    "brillo": 105.59338411458333,
+    "contraste": 12.008059189598187,
+    "media_r": 59.840169270833336,
+    "media_g": 139.68587239583334,
+    "media_b": 50.048828125,
+    "nitidez": 2545.5782821119788,
+    "megapixeles": 0.0031,
+    "aspecto": 1.3333,
+    "prop_sobreexpuesta": 0.0,
+    "prop_subexpuesta": 0.0
+  },
+  "predicciones": [
+    {
+      "modelo_id": "constante",
+      "nombre": "Predictor constante",
+      "magnitud": 53.46,
+      "magnitud_redondeada": 50,
+      "regla_aplicada": false,
+      "tiempo_ms": 0.014
+    }
+  ],
+  "advertencias": [
+    "Sin diagnostico: se asume sequia (DR) y se estima su severidad."
+  ]
+}

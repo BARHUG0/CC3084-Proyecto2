@@ -1,0 +1,2495 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "CGIAR Eyes on the Ground - API de magnitud de dano por sequia",
+    "description": "Contrato entre los modelos entrenados y el frontend. Todas las respuestas de error usan el esquema Error con un codigo estable. La magnitud se expresa de 0 a 100.",
+    "version": "1.0.0"
+  },
+  "paths": {
+    "/api/salud": {
+      "get": {
+        "tags": [
+          "sistema"
+        ],
+        "summary": "Obtener Salud",
+        "operationId": "obtener_salud",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Salud"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/catalogos": {
+      "get": {
+        "tags": [
+          "sistema"
+        ],
+        "summary": "Obtener Catalogos",
+        "operationId": "obtener_catalogos",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Catalogos"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/datos/variables": {
+      "get": {
+        "tags": [
+          "datos"
+        ],
+        "summary": "Listar Variables",
+        "operationId": "listar_variables",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/Variable"
+                  },
+                  "type": "array",
+                  "title": "Response Listar Variables"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/datos/resumen": {
+      "get": {
+        "tags": [
+          "datos"
+        ],
+        "summary": "Obtener Resumen",
+        "operationId": "obtener_resumen",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResumenDatos"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Service Unavailable",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unprocessable Content",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/datos/registros": {
+      "get": {
+        "tags": [
+          "datos"
+        ],
+        "summary": "Listar Registros",
+        "operationId": "listar_registros",
+        "parameters": [
+          {
+            "name": "pagina",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "default": 1,
+              "title": "Pagina"
+            }
+          },
+          {
+            "name": "tamano",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 100,
+              "minimum": 1,
+              "default": 25,
+              "title": "Tamano"
+            }
+          },
+          {
+            "name": "temporada",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "enum": [
+                    "LR2020",
+                    "SR2020",
+                    "LR2021",
+                    "SR2021"
+                  ],
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Temporada"
+            }
+          },
+          {
+            "name": "dano",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "enum": [
+                    "G",
+                    "DR",
+                    "DS",
+                    "FD",
+                    "ND",
+                    "PS",
+                    "WD",
+                    "WN"
+                  ],
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Dano"
+            }
+          },
+          {
+            "name": "etapa",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "enum": [
+                    "S",
+                    "V",
+                    "F",
+                    "M"
+                  ],
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Etapa"
+            }
+          },
+          {
+            "name": "subconjunto",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "enum": [
+                    "entrenamiento",
+                    "prueba"
+                  ],
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Subconjunto"
+            }
+          },
+          {
+            "name": "magnitud_min",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "integer",
+                  "maximum": 100,
+                  "minimum": 0
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Magnitud Min"
+            }
+          },
+          {
+            "name": "magnitud_max",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "integer",
+                  "maximum": 100,
+                  "minimum": 0
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Magnitud Max"
+            }
+          },
+          {
+            "name": "orden",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "enum": [
+                "id",
+                "temporada",
+                "etapa",
+                "dano",
+                "magnitud",
+                "exceso_verde",
+                "brillo",
+                "saturacion",
+                "contraste"
+              ],
+              "type": "string",
+              "default": "id",
+              "title": "Orden"
+            }
+          },
+          {
+            "name": "descendente",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "boolean",
+              "default": false,
+              "title": "Descendente"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PaginaRegistros"
+                }
+              }
+            }
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Service Unavailable"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Unprocessable Content"
+          }
+        }
+      }
+    },
+    "/api/datos/registros/{registro_id}/imagen": {
+      "get": {
+        "tags": [
+          "datos"
+        ],
+        "summary": "Obtener Imagen",
+        "operationId": "obtener_imagen",
+        "parameters": [
+          {
+            "name": "registro_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Registro Id"
+            }
+          },
+          {
+            "name": "lado",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 1024,
+              "minimum": 64,
+              "default": 256,
+              "title": "Lado"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "image/jpeg": {}
+            }
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Service Unavailable"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Unprocessable Content"
+          }
+        }
+      }
+    },
+    "/api/datos/distribucion/{variable}": {
+      "get": {
+        "tags": [
+          "datos"
+        ],
+        "summary": "Obtener Distribucion",
+        "operationId": "obtener_distribucion",
+        "parameters": [
+          {
+            "name": "variable",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "enum": [
+                "magnitud",
+                "exceso_verde",
+                "saturacion",
+                "brillo",
+                "contraste",
+                "media_r",
+                "media_g",
+                "media_b",
+                "nitidez",
+                "megapixeles",
+                "aspecto",
+                "prop_sobreexpuesta",
+                "prop_subexpuesta"
+              ],
+              "type": "string",
+              "title": "Variable"
+            }
+          },
+          {
+            "name": "por",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "enum": [
+                "ninguno",
+                "dano",
+                "temporada",
+                "etapa"
+              ],
+              "type": "string",
+              "default": "ninguno",
+              "title": "Por"
+            }
+          },
+          {
+            "name": "bins",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 50,
+              "minimum": 5,
+              "default": 20,
+              "title": "Bins"
+            }
+          },
+          {
+            "name": "solo_dr",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "boolean",
+              "default": false,
+              "title": "Solo Dr"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Distribucion"
+                }
+              }
+            }
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Service Unavailable"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Unprocessable Content"
+          }
+        }
+      }
+    },
+    "/api/datos/dispersion": {
+      "get": {
+        "tags": [
+          "datos"
+        ],
+        "summary": "Obtener Dispersion",
+        "operationId": "obtener_dispersion",
+        "parameters": [
+          {
+            "name": "x",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "enum": [
+                "magnitud",
+                "exceso_verde",
+                "saturacion",
+                "brillo",
+                "contraste",
+                "media_r",
+                "media_g",
+                "media_b",
+                "nitidez",
+                "megapixeles",
+                "aspecto",
+                "prop_sobreexpuesta",
+                "prop_subexpuesta"
+              ],
+              "type": "string",
+              "default": "exceso_verde",
+              "title": "X"
+            }
+          },
+          {
+            "name": "y",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "enum": [
+                "magnitud",
+                "exceso_verde",
+                "saturacion",
+                "brillo",
+                "contraste",
+                "media_r",
+                "media_g",
+                "media_b",
+                "nitidez",
+                "megapixeles",
+                "aspecto",
+                "prop_sobreexpuesta",
+                "prop_subexpuesta"
+              ],
+              "type": "string",
+              "default": "magnitud",
+              "title": "Y"
+            }
+          },
+          {
+            "name": "solo_dr",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "boolean",
+              "default": true,
+              "title": "Solo Dr"
+            }
+          },
+          {
+            "name": "muestra",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 5000,
+              "minimum": 1,
+              "default": 1000,
+              "title": "Muestra"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Dispersion"
+                }
+              }
+            }
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Service Unavailable"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Unprocessable Content"
+          }
+        }
+      }
+    },
+    "/api/datos/correlaciones": {
+      "get": {
+        "tags": [
+          "datos"
+        ],
+        "summary": "Listar Correlaciones",
+        "operationId": "listar_correlaciones",
+        "parameters": [
+          {
+            "name": "solo_dr",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "boolean",
+              "default": true,
+              "title": "Solo Dr"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Correlacion"
+                  },
+                  "title": "Response Listar Correlaciones"
+                }
+              }
+            }
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Service Unavailable"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Unprocessable Content"
+          }
+        }
+      }
+    },
+    "/api/modelos": {
+      "get": {
+        "tags": [
+          "modelos"
+        ],
+        "summary": "Listar Modelos",
+        "operationId": "listar_modelos",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/ModeloInfo"
+                  },
+                  "type": "array",
+                  "title": "Response Listar Modelos"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/modelos/{modelo_id}": {
+      "get": {
+        "tags": [
+          "modelos"
+        ],
+        "summary": "Obtener Modelo",
+        "operationId": "obtener_modelo",
+        "parameters": [
+          {
+            "name": "modelo_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Modelo Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ModeloDetalle"
+                }
+              }
+            }
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Unprocessable Content"
+          }
+        }
+      }
+    },
+    "/api/metricas": {
+      "get": {
+        "tags": [
+          "metricas"
+        ],
+        "summary": "Listar Metricas",
+        "operationId": "listar_metricas",
+        "parameters": [
+          {
+            "name": "modelos",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Repita el parametro para varios modelos. Si se omite, se usan todos los que tienen resultados.",
+              "title": "Modelos"
+            },
+            "description": "Repita el parametro para varios modelos. Si se omite, se usan todos los que tienen resultados."
+          },
+          {
+            "name": "alcance",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "enum": [
+                "global",
+                "dr"
+              ],
+              "type": "string",
+              "default": "dr",
+              "title": "Alcance"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Metricas"
+                  },
+                  "title": "Response Listar Metricas"
+                }
+              }
+            }
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Unprocessable Content"
+          }
+        }
+      }
+    },
+    "/api/metricas/{modelo_id}/predicciones": {
+      "get": {
+        "tags": [
+          "metricas"
+        ],
+        "summary": "Listar Predicciones",
+        "operationId": "listar_predicciones",
+        "parameters": [
+          {
+            "name": "modelo_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Modelo Id"
+            }
+          },
+          {
+            "name": "alcance",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "enum": [
+                "global",
+                "dr"
+              ],
+              "type": "string",
+              "default": "dr",
+              "title": "Alcance"
+            }
+          },
+          {
+            "name": "limite",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "integer",
+                  "maximum": 20000,
+                  "minimum": 1
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Limite"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/PuntoPrediccion"
+                  },
+                  "title": "Response Listar Predicciones"
+                }
+              }
+            }
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Conflict"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Unprocessable Content"
+          }
+        }
+      }
+    },
+    "/api/metricas/{modelo_id}/errores": {
+      "get": {
+        "tags": [
+          "metricas"
+        ],
+        "summary": "Listar Errores",
+        "operationId": "listar_errores",
+        "parameters": [
+          {
+            "name": "modelo_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Modelo Id"
+            }
+          },
+          {
+            "name": "por",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "enum": [
+                "temporada",
+                "etapa",
+                "magnitud"
+              ],
+              "type": "string",
+              "default": "temporada",
+              "title": "Por"
+            }
+          },
+          {
+            "name": "alcance",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "enum": [
+                "global",
+                "dr"
+              ],
+              "type": "string",
+              "default": "dr",
+              "title": "Alcance"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ErrorGrupo"
+                  },
+                  "title": "Response Listar Errores"
+                }
+              }
+            }
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Conflict"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Unprocessable Content"
+          }
+        }
+      }
+    },
+    "/api/predecir": {
+      "post": {
+        "tags": [
+          "prediccion"
+        ],
+        "summary": "Predecir",
+        "operationId": "predecir",
+        "requestBody": {
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "$ref": "#/components/schemas/Body_predecir"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Prediccion"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "Content Too Large",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "415": {
+            "description": "Unsupported Media Type",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unprocessable Content",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "Atributos": {
+        "properties": {
+          "exceso_verde": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Exceso Verde"
+          },
+          "saturacion": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Saturacion"
+          },
+          "brillo": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Brillo"
+          },
+          "contraste": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Contraste"
+          },
+          "media_r": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Media R"
+          },
+          "media_g": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Media G"
+          },
+          "media_b": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Media B"
+          },
+          "nitidez": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Nitidez"
+          },
+          "megapixeles": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Megapixeles"
+          },
+          "aspecto": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Aspecto"
+          },
+          "prop_sobreexpuesta": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Prop Sobreexpuesta"
+          },
+          "prop_subexpuesta": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Prop Subexpuesta"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "title": "Atributos"
+      },
+      "Body_predecir": {
+        "properties": {
+          "imagen": {
+            "type": "string",
+            "contentMediaType": "application/octet-stream",
+            "title": "Imagen",
+            "description": "Fotografia JPEG o PNG del cultivo."
+          },
+          "dano": {
+            "anyOf": [
+              {
+                "type": "string",
+                "enum": [
+                  "G",
+                  "DR",
+                  "DS",
+                  "FD",
+                  "ND",
+                  "PS",
+                  "WD",
+                  "WN"
+                ]
+              },
+              {
+                "type": "string",
+                "const": ""
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Dano",
+            "description": "Diagnostico conocido. Omitir o enviar vacio si no se conoce."
+          },
+          "modelos": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Modelos",
+            "description": "Repita el campo para varios modelos. Si se omite, se usan todos los disponibles."
+          }
+        },
+        "type": "object",
+        "required": [
+          "imagen"
+        ],
+        "title": "Body_predecir"
+      },
+      "Catalogos": {
+        "properties": {
+          "temporadas": {
+            "items": {
+              "$ref": "#/components/schemas/Opcion"
+            },
+            "type": "array",
+            "title": "Temporadas"
+          },
+          "danos": {
+            "items": {
+              "$ref": "#/components/schemas/Opcion"
+            },
+            "type": "array",
+            "title": "Danos"
+          },
+          "etapas": {
+            "items": {
+              "$ref": "#/components/schemas/Opcion"
+            },
+            "type": "array",
+            "title": "Etapas"
+          },
+          "tipos_captura": {
+            "items": {
+              "$ref": "#/components/schemas/Opcion"
+            },
+            "type": "array",
+            "title": "Tipos Captura"
+          },
+          "paleta": {
+            "additionalProperties": {
+              "type": "string"
+            },
+            "type": "object",
+            "title": "Paleta"
+          },
+          "secuencia_colores": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Secuencia Colores"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "temporadas",
+          "danos",
+          "etapas",
+          "tipos_captura",
+          "paleta",
+          "secuencia_colores"
+        ],
+        "title": "Catalogos"
+      },
+      "Conteo": {
+        "properties": {
+          "clave": {
+            "type": "string",
+            "title": "Clave"
+          },
+          "etiqueta": {
+            "type": "string",
+            "title": "Etiqueta"
+          },
+          "conteo": {
+            "type": "integer",
+            "title": "Conteo"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "clave",
+          "etiqueta",
+          "conteo"
+        ],
+        "title": "Conteo"
+      },
+      "Correlacion": {
+        "properties": {
+          "variable": {
+            "type": "string",
+            "title": "Variable"
+          },
+          "spearman": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Spearman"
+          },
+          "n": {
+            "type": "integer",
+            "title": "N"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "variable",
+          "spearman",
+          "n"
+        ],
+        "title": "Correlacion"
+      },
+      "Dispersion": {
+        "properties": {
+          "x": {
+            "type": "string",
+            "title": "X"
+          },
+          "y": {
+            "type": "string",
+            "title": "Y"
+          },
+          "total_disponible": {
+            "type": "integer",
+            "title": "Total Disponible"
+          },
+          "puntos": {
+            "items": {
+              "$ref": "#/components/schemas/PuntoDispersion"
+            },
+            "type": "array",
+            "title": "Puntos"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "x",
+          "y",
+          "total_disponible",
+          "puntos"
+        ],
+        "title": "Dispersion"
+      },
+      "Distribucion": {
+        "properties": {
+          "variable": {
+            "type": "string",
+            "title": "Variable"
+          },
+          "por": {
+            "type": "string",
+            "enum": [
+              "ninguno",
+              "dano",
+              "temporada",
+              "etapa"
+            ],
+            "title": "Por"
+          },
+          "bordes": {
+            "items": {
+              "type": "number"
+            },
+            "type": "array",
+            "title": "Bordes",
+            "description": "Bordes compartidos por todos los grupos; hay uno mas que conteos."
+          },
+          "grupos": {
+            "items": {
+              "$ref": "#/components/schemas/GrupoDistribucion"
+            },
+            "type": "array",
+            "title": "Grupos"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "variable",
+          "por",
+          "bordes",
+          "grupos"
+        ],
+        "title": "Distribucion"
+      },
+      "EpocaEntrenamiento": {
+        "properties": {
+          "epoca": {
+            "type": "integer",
+            "title": "Epoca"
+          },
+          "perdida_entrenamiento": {
+            "type": "number",
+            "title": "Perdida Entrenamiento"
+          },
+          "perdida_validacion": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Perdida Validacion"
+          },
+          "mae_validacion": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Mae Validacion"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "epoca",
+          "perdida_entrenamiento"
+        ],
+        "title": "EpocaEntrenamiento"
+      },
+      "Error": {
+        "properties": {
+          "detalle": {
+            "type": "string",
+            "title": "Detalle",
+            "description": "Mensaje legible para mostrar al usuario."
+          },
+          "codigo": {
+            "type": "string",
+            "title": "Codigo",
+            "description": "Identificador estable del error para el frontend."
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "detalle",
+          "codigo"
+        ],
+        "title": "Error"
+      },
+      "ErrorGrupo": {
+        "properties": {
+          "grupo": {
+            "type": "string",
+            "title": "Grupo"
+          },
+          "etiqueta": {
+            "type": "string",
+            "title": "Etiqueta"
+          },
+          "n": {
+            "type": "integer",
+            "title": "N"
+          },
+          "mae": {
+            "type": "number",
+            "title": "Mae"
+          },
+          "rmse": {
+            "type": "number",
+            "title": "Rmse"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "grupo",
+          "etiqueta",
+          "n",
+          "mae",
+          "rmse"
+        ],
+        "title": "ErrorGrupo"
+      },
+      "GrupoDistribucion": {
+        "properties": {
+          "grupo": {
+            "type": "string",
+            "title": "Grupo"
+          },
+          "etiqueta": {
+            "type": "string",
+            "title": "Etiqueta"
+          },
+          "conteos": {
+            "items": {
+              "type": "integer"
+            },
+            "type": "array",
+            "title": "Conteos"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "grupo",
+          "etiqueta",
+          "conteos"
+        ],
+        "title": "GrupoDistribucion"
+      },
+      "Importancia": {
+        "properties": {
+          "variable": {
+            "type": "string",
+            "title": "Variable"
+          },
+          "importancia": {
+            "type": "number",
+            "title": "Importancia"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "variable",
+          "importancia"
+        ],
+        "title": "Importancia"
+      },
+      "Metricas": {
+        "properties": {
+          "modelo_id": {
+            "type": "string",
+            "title": "Modelo Id"
+          },
+          "alcance": {
+            "type": "string",
+            "enum": [
+              "global",
+              "dr"
+            ],
+            "title": "Alcance"
+          },
+          "n": {
+            "type": "integer",
+            "title": "N"
+          },
+          "mae": {
+            "type": "number",
+            "title": "Mae"
+          },
+          "rmse": {
+            "type": "number",
+            "title": "Rmse"
+          },
+          "r2": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "R2"
+          },
+          "tiempo_entrenamiento_s": {
+            "type": "number",
+            "title": "Tiempo Entrenamiento S"
+          },
+          "tiempo_inferencia_ms": {
+            "type": "number",
+            "title": "Tiempo Inferencia Ms"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "modelo_id",
+          "alcance",
+          "n",
+          "mae",
+          "rmse",
+          "r2",
+          "tiempo_entrenamiento_s",
+          "tiempo_inferencia_ms"
+        ],
+        "title": "Metricas"
+      },
+      "ModeloDetalle": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "nombre": {
+            "type": "string",
+            "title": "Nombre"
+          },
+          "familia": {
+            "type": "string",
+            "enum": [
+              "referencia",
+              "tabular",
+              "cnn"
+            ],
+            "title": "Familia"
+          },
+          "descripcion": {
+            "type": "string",
+            "title": "Descripcion"
+          },
+          "entradas": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Entradas"
+          },
+          "hiperparametros": {
+            "additionalProperties": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "integer"
+                },
+                {
+                  "type": "number"
+                },
+                {
+                  "type": "boolean"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "type": "object",
+            "title": "Hiperparametros"
+          },
+          "disponible": {
+            "type": "boolean",
+            "title": "Disponible",
+            "description": "Existe el artefacto entrenado y puede usarse en /predecir."
+          },
+          "tiene_resultados": {
+            "type": "boolean",
+            "title": "Tiene Resultados",
+            "description": "Existen resultados de prueba para /metricas."
+          },
+          "historial_ajuste": {
+            "items": {
+              "$ref": "#/components/schemas/PasoAjuste"
+            },
+            "type": "array",
+            "title": "Historial Ajuste"
+          },
+          "curva_entrenamiento": {
+            "items": {
+              "$ref": "#/components/schemas/EpocaEntrenamiento"
+            },
+            "type": "array",
+            "title": "Curva Entrenamiento"
+          },
+          "importancias": {
+            "items": {
+              "$ref": "#/components/schemas/Importancia"
+            },
+            "type": "array",
+            "title": "Importancias"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "id",
+          "nombre",
+          "familia",
+          "descripcion",
+          "entradas",
+          "hiperparametros",
+          "disponible",
+          "tiene_resultados",
+          "historial_ajuste",
+          "curva_entrenamiento",
+          "importancias"
+        ],
+        "title": "ModeloDetalle"
+      },
+      "ModeloInfo": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "nombre": {
+            "type": "string",
+            "title": "Nombre"
+          },
+          "familia": {
+            "type": "string",
+            "enum": [
+              "referencia",
+              "tabular",
+              "cnn"
+            ],
+            "title": "Familia"
+          },
+          "descripcion": {
+            "type": "string",
+            "title": "Descripcion"
+          },
+          "entradas": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Entradas"
+          },
+          "hiperparametros": {
+            "additionalProperties": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "integer"
+                },
+                {
+                  "type": "number"
+                },
+                {
+                  "type": "boolean"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "type": "object",
+            "title": "Hiperparametros"
+          },
+          "disponible": {
+            "type": "boolean",
+            "title": "Disponible",
+            "description": "Existe el artefacto entrenado y puede usarse en /predecir."
+          },
+          "tiene_resultados": {
+            "type": "boolean",
+            "title": "Tiene Resultados",
+            "description": "Existen resultados de prueba para /metricas."
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "id",
+          "nombre",
+          "familia",
+          "descripcion",
+          "entradas",
+          "hiperparametros",
+          "disponible",
+          "tiene_resultados"
+        ],
+        "title": "ModeloInfo"
+      },
+      "Opcion": {
+        "properties": {
+          "codigo": {
+            "type": "string",
+            "title": "Codigo"
+          },
+          "nombre": {
+            "type": "string",
+            "title": "Nombre"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "codigo",
+          "nombre"
+        ],
+        "title": "Opcion"
+      },
+      "PaginaRegistros": {
+        "properties": {
+          "total": {
+            "type": "integer",
+            "title": "Total"
+          },
+          "pagina": {
+            "type": "integer",
+            "title": "Pagina"
+          },
+          "tamano": {
+            "type": "integer",
+            "title": "Tamano"
+          },
+          "paginas": {
+            "type": "integer",
+            "title": "Paginas"
+          },
+          "registros": {
+            "items": {
+              "$ref": "#/components/schemas/Registro"
+            },
+            "type": "array",
+            "title": "Registros"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "total",
+          "pagina",
+          "tamano",
+          "paginas",
+          "registros"
+        ],
+        "title": "PaginaRegistros"
+      },
+      "PasoAjuste": {
+        "properties": {
+          "parametros": {
+            "additionalProperties": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "integer"
+                },
+                {
+                  "type": "number"
+                },
+                {
+                  "type": "boolean"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "type": "object",
+            "title": "Parametros"
+          },
+          "rmse_validacion": {
+            "type": "number",
+            "title": "Rmse Validacion"
+          },
+          "mae_validacion": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Mae Validacion"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "parametros",
+          "rmse_validacion"
+        ],
+        "title": "PasoAjuste"
+      },
+      "Prediccion": {
+        "properties": {
+          "dano_considerado": {
+            "anyOf": [
+              {
+                "type": "string",
+                "enum": [
+                  "G",
+                  "DR",
+                  "DS",
+                  "FD",
+                  "ND",
+                  "PS",
+                  "WD",
+                  "WN"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Dano Considerado"
+          },
+          "atributos": {
+            "$ref": "#/components/schemas/Atributos"
+          },
+          "predicciones": {
+            "items": {
+              "$ref": "#/components/schemas/PrediccionModelo"
+            },
+            "type": "array",
+            "title": "Predicciones"
+          },
+          "advertencias": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Advertencias"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "dano_considerado",
+          "atributos",
+          "predicciones",
+          "advertencias"
+        ],
+        "title": "Prediccion"
+      },
+      "PrediccionModelo": {
+        "properties": {
+          "modelo_id": {
+            "type": "string",
+            "title": "Modelo Id"
+          },
+          "nombre": {
+            "type": "string",
+            "title": "Nombre"
+          },
+          "magnitud": {
+            "type": "number",
+            "maximum": 100.0,
+            "minimum": 0.0,
+            "title": "Magnitud"
+          },
+          "magnitud_redondeada": {
+            "type": "integer",
+            "multipleOf": 10.0,
+            "maximum": 100.0,
+            "minimum": 0.0,
+            "title": "Magnitud Redondeada"
+          },
+          "regla_aplicada": {
+            "type": "boolean",
+            "title": "Regla Aplicada",
+            "description": "Verdadero si se devolvio 0 por un diagnostico distinto de DR."
+          },
+          "tiempo_ms": {
+            "type": "number",
+            "title": "Tiempo Ms"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "modelo_id",
+          "nombre",
+          "magnitud",
+          "magnitud_redondeada",
+          "regla_aplicada",
+          "tiempo_ms"
+        ],
+        "title": "PrediccionModelo"
+      },
+      "PuntoDispersion": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "x": {
+            "type": "number",
+            "title": "X"
+          },
+          "y": {
+            "type": "number",
+            "title": "Y"
+          },
+          "dano": {
+            "type": "string",
+            "enum": [
+              "G",
+              "DR",
+              "DS",
+              "FD",
+              "ND",
+              "PS",
+              "WD",
+              "WN"
+            ],
+            "title": "Dano"
+          },
+          "temporada": {
+            "type": "string",
+            "enum": [
+              "LR2020",
+              "SR2020",
+              "LR2021",
+              "SR2021"
+            ],
+            "title": "Temporada"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "id",
+          "x",
+          "y",
+          "dano",
+          "temporada"
+        ],
+        "title": "PuntoDispersion"
+      },
+      "PuntoPrediccion": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "real": {
+            "type": "number",
+            "title": "Real"
+          },
+          "predicho": {
+            "type": "number",
+            "title": "Predicho"
+          },
+          "error": {
+            "type": "number",
+            "title": "Error",
+            "description": "predicho menos real."
+          },
+          "temporada": {
+            "type": "string",
+            "enum": [
+              "LR2020",
+              "SR2020",
+              "LR2021",
+              "SR2021"
+            ],
+            "title": "Temporada"
+          },
+          "etapa": {
+            "anyOf": [
+              {
+                "type": "string",
+                "enum": [
+                  "S",
+                  "V",
+                  "F",
+                  "M"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Etapa"
+          },
+          "dano": {
+            "type": "string",
+            "enum": [
+              "G",
+              "DR",
+              "DS",
+              "FD",
+              "ND",
+              "PS",
+              "WD",
+              "WN"
+            ],
+            "title": "Dano"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "id",
+          "real",
+          "predicho",
+          "error",
+          "temporada",
+          "etapa",
+          "dano"
+        ],
+        "title": "PuntoPrediccion"
+      },
+      "Registro": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "archivo": {
+            "type": "string",
+            "title": "Archivo"
+          },
+          "temporada": {
+            "type": "string",
+            "enum": [
+              "LR2020",
+              "SR2020",
+              "LR2021",
+              "SR2021"
+            ],
+            "title": "Temporada"
+          },
+          "etapa": {
+            "anyOf": [
+              {
+                "type": "string",
+                "enum": [
+                  "S",
+                  "V",
+                  "F",
+                  "M"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Etapa"
+          },
+          "dano": {
+            "type": "string",
+            "enum": [
+              "G",
+              "DR",
+              "DS",
+              "FD",
+              "ND",
+              "PS",
+              "WD",
+              "WN"
+            ],
+            "title": "Dano"
+          },
+          "magnitud": {
+            "type": "integer",
+            "title": "Magnitud"
+          },
+          "subconjunto": {
+            "type": "string",
+            "enum": [
+              "entrenamiento",
+              "prueba"
+            ],
+            "title": "Subconjunto"
+          },
+          "tipo_captura": {
+            "anyOf": [
+              {
+                "type": "string",
+                "enum": [
+                  "inicial",
+                  "seguimiento",
+                  "reclamo"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Tipo Captura"
+          },
+          "atributos": {
+            "$ref": "#/components/schemas/Atributos"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "id",
+          "archivo",
+          "temporada",
+          "etapa",
+          "dano",
+          "magnitud",
+          "subconjunto",
+          "tipo_captura",
+          "atributos"
+        ],
+        "title": "Registro"
+      },
+      "ResumenDatos": {
+        "properties": {
+          "total_registros": {
+            "type": "integer",
+            "title": "Total Registros"
+          },
+          "registros_dr": {
+            "type": "integer",
+            "title": "Registros Dr"
+          },
+          "campos": {
+            "type": "integer",
+            "title": "Campos"
+          },
+          "por_subconjunto": {
+            "items": {
+              "$ref": "#/components/schemas/Conteo"
+            },
+            "type": "array",
+            "title": "Por Subconjunto"
+          },
+          "por_temporada": {
+            "items": {
+              "$ref": "#/components/schemas/Conteo"
+            },
+            "type": "array",
+            "title": "Por Temporada"
+          },
+          "por_dano": {
+            "items": {
+              "$ref": "#/components/schemas/Conteo"
+            },
+            "type": "array",
+            "title": "Por Dano"
+          },
+          "por_etapa": {
+            "items": {
+              "$ref": "#/components/schemas/Conteo"
+            },
+            "type": "array",
+            "title": "Por Etapa"
+          },
+          "magnitud_global": {
+            "items": {
+              "$ref": "#/components/schemas/Conteo"
+            },
+            "type": "array",
+            "title": "Magnitud Global"
+          },
+          "magnitud_dr": {
+            "items": {
+              "$ref": "#/components/schemas/Conteo"
+            },
+            "type": "array",
+            "title": "Magnitud Dr"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "total_registros",
+          "registros_dr",
+          "campos",
+          "por_subconjunto",
+          "por_temporada",
+          "por_dano",
+          "por_etapa",
+          "magnitud_global",
+          "magnitud_dr"
+        ],
+        "title": "ResumenDatos"
+      },
+      "Salud": {
+        "properties": {
+          "estado": {
+            "type": "string",
+            "const": "ok",
+            "title": "Estado"
+          },
+          "version": {
+            "type": "string",
+            "title": "Version"
+          },
+          "datos_disponibles": {
+            "type": "boolean",
+            "title": "Datos Disponibles"
+          },
+          "modelos_disponibles": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Modelos Disponibles"
+          },
+          "modelos_con_resultados": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Modelos Con Resultados"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "estado",
+          "version",
+          "datos_disponibles",
+          "modelos_disponibles",
+          "modelos_con_resultados"
+        ],
+        "title": "Salud"
+      },
+      "Variable": {
+        "properties": {
+          "nombre": {
+            "type": "string",
+            "title": "Nombre"
+          },
+          "etiqueta": {
+            "type": "string",
+            "title": "Etiqueta"
+          },
+          "descripcion": {
+            "type": "string",
+            "title": "Descripcion"
+          },
+          "tipo": {
+            "type": "string",
+            "enum": [
+              "numerica",
+              "categorica"
+            ],
+            "title": "Tipo"
+          },
+          "rol": {
+            "type": "string",
+            "enum": [
+              "objetivo",
+              "atributo",
+              "contexto"
+            ],
+            "title": "Rol"
+          },
+          "usada_en_modelos": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Usada En Modelos"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "nombre",
+          "etiqueta",
+          "descripcion",
+          "tipo",
+          "rol",
+          "usada_en_modelos"
+        ],
+        "title": "Variable"
+      }
+    }
+  }
+}

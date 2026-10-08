@@ -1,0 +1,62 @@
+[
+  {
+    "variable": "exceso_verde",
+    "spearman": -0.9933617159139545,
+    "n": 96
+  },
+  {
+    "variable": "saturacion",
+    "spearman": -0.8663110467243467,
+    "n": 96
+  },
+  {
+    "variable": "brillo",
+    "spearman": 0.9933617159139545,
+    "n": 96
+  },
+  {
+    "variable": "contraste",
+    "spearman": 0.05491554881190974,
+    "n": 96
+  },
+  {
+    "variable": "media_r",
+    "spearman": 0.9933617159139545,
+    "n": 96
+  },
+  {
+    "variable": "media_g",
+    "spearman": 0.09067958188564901,
+    "n": 96
+  },
+  {
+    "variable": "media_b",
+    "spearman": 0.9933617159139545,
+    "n": 96
+  },
+  {
+    "variable": "nitidez",
+    "spearman": 0.04565029955942168,
+    "n": 96
+  },
+  {
+    "variable": "megapixeles",
+    "spearman": null,
+    "n": 96
+  },
+  {
+    "variable": "aspecto",
+    "spearman": null,
+    "n": 96
+  },
+  {
+    "variable": "prop_sobreexpuesta",
+    "spearman": null,
+    "n": 96
+  },
+  {
+    "variable": "prop_subexpuesta",
+    "spearman": null,
+    "n": 96
+  }
+]

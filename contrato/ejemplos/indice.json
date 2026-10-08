@@ -1,0 +1,139 @@
+{
+  "salud": {
+    "metodo": "GET",
+    "ruta": "/api/salud",
+    "estado": 200
+  },
+  "catalogos": {
+    "metodo": "GET",
+    "ruta": "/api/catalogos",
+    "estado": 200
+  },
+  "variables": {
+    "metodo": "GET",
+    "ruta": "/api/datos/variables",
+    "estado": 200
+  },
+  "resumen": {
+    "metodo": "GET",
+    "ruta": "/api/datos/resumen",
+    "estado": 200
+  },
+  "registros": {
+    "metodo": "GET",
+    "ruta": "/api/datos/registros",
+    "params": {
+      "tamano": 5,
+      "dano": "DR"
+    },
+    "estado": 200
+  },
+  "distribucion_por_dano": {
+    "metodo": "GET",
+    "ruta": "/api/datos/distribucion/exceso_verde",
+    "params": {
+      "por": "dano",
+      "bins": 10
+    },
+    "estado": 200
+  },
+  "distribucion_magnitud": {
+    "metodo": "GET",
+    "ruta": "/api/datos/distribucion/magnitud",
+    "params": {
+      "solo_dr": true
+    },
+    "estado": 200
+  },
+  "dispersion": {
+    "metodo": "GET",
+    "ruta": "/api/datos/dispersion",
+    "params": {
+      "x": "exceso_verde",
+      "muestra": 20
+    },
+    "estado": 200
+  },
+  "correlaciones": {
+    "metodo": "GET",
+    "ruta": "/api/datos/correlaciones",
+    "estado": 200
+  },
+  "modelos": {
+    "metodo": "GET",
+    "ruta": "/api/modelos",
+    "estado": 200
+  },
+  "modelo_detalle": {
+    "metodo": "GET",
+    "ruta": "/api/modelos/constante",
+    "estado": 200
+  },
+  "metricas": {
+    "metodo": "GET",
+    "ruta": "/api/metricas",
+    "params": {
+      "alcance": "dr"
+    },
+    "estado": 200
+  },
+  "predicciones": {
+    "metodo": "GET",
+    "ruta": "/api/metricas/constante/predicciones",
+    "params": {
+      "limite": 10
+    },
+    "estado": 200
+  },
+  "errores_por_temporada": {
+    "metodo": "GET",
+    "ruta": "/api/metricas/constante/errores",
+    "params": {
+      "por": "temporada"
+    },
+    "estado": 200
+  },
+  "errores_por_magnitud": {
+    "metodo": "GET",
+    "ruta": "/api/metricas/constante/errores",
+    "params": {
+      "por": "magnitud"
+    },
+    "estado": 200
+  },
+  "error_modelo_no_encontrado": {
+    "metodo": "GET",
+    "ruta": "/api/modelos/inexistente",
+    "estado": 404
+  },
+  "error_validacion": {
+    "metodo": "GET",
+    "ruta": "/api/datos/registros",
+    "params": {
+      "tamano": 500
+    },
+    "estado": 422
+  },
+  "prediccion_dr": {
+    "metodo": "POST",
+    "ruta": "/api/predecir",
+    "data": {
+      "dano": "DR"
+    },
+    "estado": 200
+  },
+  "prediccion_sin_diagnostico": {
+    "metodo": "POST",
+    "ruta": "/api/predecir",
+    "data": {},
+    "estado": 200
+  },
+  "prediccion_otro_dano": {
+    "metodo": "POST",
+    "ruta": "/api/predecir",
+    "data": {
+      "dano": "G"
+    },
+    "estado": 200
+  }
+}

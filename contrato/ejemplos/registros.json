@@ -1,0 +1,128 @@
+{
+  "total": 96,
+  "pagina": 1,
+  "tamano": 5,
+  "paginas": 20,
+  "registros": [
+    {
+      "id": "ID_SINT0002",
+      "archivo": "L14F1C1S1Ip2.jpg",
+      "temporada": "SR2020",
+      "etapa": "S",
+      "dano": "DR",
+      "magnitud": 80,
+      "subconjunto": "prueba",
+      "tipo_captura": "reclamo",
+      "atributos": {
+        "exceso_verde": 0.16246434605723672,
+        "saturacion": 0.501002669773941,
+        "brillo": 135.11161100260415,
+        "contraste": 12.335866663140347,
+        "media_r": 147.98860677083334,
+        "media_g": 140.34375,
+        "media_b": 74.39680989583333,
+        "nitidez": 2542.8705899199217,
+        "megapixeles": 0.0031,
+        "aspecto": 1.3333,
+        "prop_sobreexpuesta": 0.0,
+        "prop_subexpuesta": 0.0
+      }
+    },
+    {
+      "id": "ID_SINT0005",
+      "archivo": "L40F1C1S1Ip5.jpg",
+      "temporada": "SR2021",
+      "etapa": "S",
+      "dano": "DR",
+      "magnitud": 20,
+      "subconjunto": "entrenamiento",
+      "tipo_captura": "inicial",
+      "atributos": {
+        "exceso_verde": 0.5258271271721845,
+        "saturacion": 0.6083504233157988,
+        "brillo": 112.22383561197915,
+        "contraste": 12.048561825051078,
+        "media_r": 81.07975260416667,
+        "media_g": 139.18229166666666,
+        "media_b": 55.096354166666664,
+        "nitidez": 2301.8189150423173,
+        "megapixeles": 0.0031,
+        "aspecto": 1.3333,
+        "prop_sobreexpuesta": 0.0,
+        "prop_subexpuesta": 0.0
+      }
+    },
+    {
+      "id": "ID_SINT0006",
+      "archivo": "L17F1C1S1Ip6.jpg",
+      "temporada": "SR2020",
+      "etapa": "F",
+      "dano": "DR",
+      "magnitud": 70,
+      "subconjunto": "entrenamiento",
+      "tipo_captura": "inicial",
+      "atributos": {
+        "exceso_verde": 0.20537988371868568,
+        "saturacion": 0.5011817956232686,
+        "brillo": 130.69538151041664,
+        "contraste": 12.269692370822998,
+        "media_r": 137.24348958333334,
+        "media_g": 139.0546875,
+        "media_b": 70.47786458333333,
+        "nitidez": 2485.9487577929685,
+        "megapixeles": 0.0031,
+        "aspecto": 1.3333,
+        "prop_sobreexpuesta": 0.0,
+        "prop_subexpuesta": 0.0
+      }
+    },
+    {
+      "id": "ID_SINT0012",
+      "archivo": "L24F1C1S1Ip12.jpg",
+      "temporada": "SR2021",
+      "etapa": null,
+      "dano": "DR",
+      "magnitud": 10,
+      "subconjunto": "prueba",
+      "tipo_captura": "seguimiento",
+      "atributos": {
+        "exceso_verde": 0.6098526425560692,
+        "saturacion": 0.6325675050258005,
+        "brillo": 109.21205533854167,
+        "contraste": 12.290594165338053,
+        "media_r": 70.826171875,
+        "media_g": 139.87044270833334,
+        "media_b": 52.027018229166664,
+        "nitidez": 2402.7009526868487,
+        "megapixeles": 0.0031,
+        "aspecto": 1.3333,
+        "prop_sobreexpuesta": 0.0,
+        "prop_subexpuesta": 0.0
+      }
+    },
+    {
+      "id": "ID_SINT0013",
+      "archivo": "L2F1C1S1Ip13.jpg",
+      "temporada": "SR2020",
+      "etapa": "F",
+      "dano": "DR",
+      "magnitud": 30,
+      "subconjunto": "entrenamiento",
+      "tipo_captura": "inicial",
+      "atributos": {
+        "exceso_verde": 0.4465663678489622,
+        "saturacion": 0.5849755734789667,
+        "brillo": 116.12833268229167,
+        "contraste": 12.22283342434439,
+        "media_r": 92.64713541666667,
+        "media_g": 139.30338541666666,
+        "media_b": 58.3837890625,
+        "nitidez": 2533.958668691406,
+        "megapixeles": 0.0031,
+        "aspecto": 1.3333,
+        "prop_sobreexpuesta": 0.0,
+        "prop_subexpuesta": 0.0
+      }
+    }
+  ]
+}

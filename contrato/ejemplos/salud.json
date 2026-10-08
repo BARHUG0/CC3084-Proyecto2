@@ -1,0 +1,11 @@
+{
+  "estado": "ok",
+  "version": "1.0.0",
+  "datos_disponibles": true,
+  "modelos_disponibles": [
+    "constante"
+  ],
+  "modelos_con_resultados": [
+    "constante"
+  ]
+}

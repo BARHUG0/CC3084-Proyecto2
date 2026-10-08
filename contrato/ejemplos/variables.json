@@ -1,0 +1,138 @@
+[
+  {
+    "nombre": "magnitud",
+    "etiqueta": "Magnitud del dano",
+    "descripcion": "Porcentaje de dano por sequia, de 0 a 100 en pasos de 10.",
+    "tipo": "numerica",
+    "rol": "objetivo",
+    "usada_en_modelos": []
+  },
+  {
+    "nombre": "dano",
+    "etiqueta": "Tipo de dano",
+    "descripcion": "Diagnostico registrado para la fotografia.",
+    "tipo": "categorica",
+    "rol": "contexto",
+    "usada_en_modelos": []
+  },
+  {
+    "nombre": "temporada",
+    "etiqueta": "Temporada",
+    "descripcion": "Temporada agricola de la captura.",
+    "tipo": "categorica",
+    "rol": "contexto",
+    "usada_en_modelos": []
+  },
+  {
+    "nombre": "etapa",
+    "etiqueta": "Etapa de crecimiento",
+    "descripcion": "Etapa fenologica del cultivo.",
+    "tipo": "categorica",
+    "rol": "contexto",
+    "usada_en_modelos": []
+  },
+  {
+    "nombre": "tipo_captura",
+    "etiqueta": "Tipo de captura",
+    "descripcion": "Fotografia inicial, de seguimiento o de reclamo.",
+    "tipo": "categorica",
+    "rol": "contexto",
+    "usada_en_modelos": []
+  },
+  {
+    "nombre": "exceso_verde",
+    "etiqueta": "Exceso de verde",
+    "descripcion": "Indice 2g - r - b promedio sobre la miniatura.",
+    "tipo": "numerica",
+    "rol": "atributo",
+    "usada_en_modelos": []
+  },
+  {
+    "nombre": "saturacion",
+    "etiqueta": "Saturacion",
+    "descripcion": "Saturacion media de los pixeles, de 0 a 1.",
+    "tipo": "numerica",
+    "rol": "atributo",
+    "usada_en_modelos": []
+  },
+  {
+    "nombre": "brillo",
+    "etiqueta": "Brillo",
+    "descripcion": "Luminancia media en escala de 0 a 255.",
+    "tipo": "numerica",
+    "rol": "atributo",
+    "usada_en_modelos": []
+  },
+  {
+    "nombre": "contraste",
+    "etiqueta": "Contraste",
+    "descripcion": "Desviacion estandar de la luminancia.",
+    "tipo": "numerica",
+    "rol": "atributo",
+    "usada_en_modelos": []
+  },
+  {
+    "nombre": "media_r",
+    "etiqueta": "Media del canal rojo",
+    "descripcion": "Intensidad media del canal R.",
+    "tipo": "numerica",
+    "rol": "atributo",
+    "usada_en_modelos": []
+  },
+  {
+    "nombre": "media_g",
+    "etiqueta": "Media del canal verde",
+    "descripcion": "Intensidad media del canal G.",
+    "tipo": "numerica",
+    "rol": "atributo",
+    "usada_en_modelos": []
+  },
+  {
+    "nombre": "media_b",
+    "etiqueta": "Media del canal azul",
+    "descripcion": "Intensidad media del canal B.",
+    "tipo": "numerica",
+    "rol": "atributo",
+    "usada_en_modelos": []
+  },
+  {
+    "nombre": "nitidez",
+    "etiqueta": "Nitidez",
+    "descripcion": "Varianza del laplaciano de la luminancia.",
+    "tipo": "numerica",
+    "rol": "atributo",
+    "usada_en_modelos": []
+  },
+  {
+    "nombre": "megapixeles",
+    "etiqueta": "Megapixeles",
+    "descripcion": "Resolucion de la fotografia original.",
+    "tipo": "numerica",
+    "rol": "atributo",
+    "usada_en_modelos": []
+  },
+  {
+    "nombre": "aspecto",
+    "etiqueta": "Relacion de aspecto",
+    "descripcion": "Ancho dividido entre alto.",
+    "tipo": "numerica",
+    "rol": "atributo",
+    "usada_en_modelos": []
+  },
+  {
+    "nombre": "prop_sobreexpuesta",
+    "etiqueta": "Proporcion sobreexpuesta",
+    "descripcion": "Fraccion de pixeles con luminancia muy alta.",
+    "tipo": "numerica",
+    "rol": "atributo",
+    "usada_en_modelos": []
+  },
+  {
+    "nombre": "prop_subexpuesta",
+    "etiqueta": "Proporcion subexpuesta",
+    "descripcion": "Fraccion de pixeles con luminancia muy baja.",
+    "tipo": "numerica",
+    "rol": "atributo",
+    "usada_en_modelos": []
+  }
+]

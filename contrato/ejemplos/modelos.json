@@ -1,0 +1,15 @@
+[
+  {
+    "id": "constante",
+    "nombre": "Predictor constante",
+    "familia": "referencia",
+    "descripcion": "Predice la magnitud media de los registros DR de entrenamiento.",
+    "entradas": [],
+    "hiperparametros": {
+      "valor": 53.4615,
+      "subconjunto": "DR"
+    },
+    "disponible": true,
+    "tiene_resultados": true
+  }
+]

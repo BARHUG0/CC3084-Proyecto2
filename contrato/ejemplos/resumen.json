@@ -1,0 +1,217 @@
+{
+  "total_registros": 300,
+  "registros_dr": 96,
+  "campos": 40,
+  "por_subconjunto": [
+    {
+      "clave": "entrenamiento",
+      "etiqueta": "Entrenamiento",
+      "conteo": 246
+    },
+    {
+      "clave": "prueba",
+      "etiqueta": "Prueba",
+      "conteo": 54
+    }
+  ],
+  "por_temporada": [
+    {
+      "clave": "LR2020",
+      "etiqueta": "LR2020",
+      "conteo": 92
+    },
+    {
+      "clave": "SR2020",
+      "etiqueta": "SR2020",
+      "conteo": 67
+    },
+    {
+      "clave": "LR2021",
+      "etiqueta": "LR2021",
+      "conteo": 70
+    },
+    {
+      "clave": "SR2021",
+      "etiqueta": "SR2021",
+      "conteo": 71
+    }
+  ],
+  "por_dano": [
+    {
+      "clave": "G",
+      "etiqueta": "Crecimiento sano",
+      "conteo": 34
+    },
+    {
+      "clave": "DR",
+      "etiqueta": "Sequia",
+      "conteo": 96
+    },
+    {
+      "clave": "DS",
+      "etiqueta": "Enfermedad",
+      "conteo": 28
+    },
+    {
+      "clave": "FD",
+      "etiqueta": "Inundacion",
+      "conteo": 33
+    },
+    {
+      "clave": "ND",
+      "etiqueta": "Deficiencia de nutrientes",
+      "conteo": 26
+    },
+    {
+      "clave": "PS",
+      "etiqueta": "Plaga",
+      "conteo": 30
+    },
+    {
+      "clave": "WD",
+      "etiqueta": "Maleza",
+      "conteo": 25
+    },
+    {
+      "clave": "WN",
+      "etiqueta": "Viento",
+      "conteo": 28
+    }
+  ],
+  "por_etapa": [
+    {
+      "clave": "S",
+      "etiqueta": "Siembra",
+      "conteo": 71
+    },
+    {
+      "clave": "V",
+      "etiqueta": "Vegetativa",
+      "conteo": 62
+    },
+    {
+      "clave": "F",
+      "etiqueta": "Floracion",
+      "conteo": 67
+    },
+    {
+      "clave": "M",
+      "etiqueta": "Madurez",
+      "conteo": 68
+    }
+  ],
+  "magnitud_global": [
+    {
+      "clave": "0",
+      "etiqueta": "0 %",
+      "conteo": 204
+    },
+    {
+      "clave": "10",
+      "etiqueta": "10 %",
+      "conteo": 7
+    },
+    {
+      "clave": "20",
+      "etiqueta": "20 %",
+      "conteo": 13
+    },
+    {
+      "clave": "30",
+      "etiqueta": "30 %",
+      "conteo": 16
+    },
+    {
+      "clave": "40",
+      "etiqueta": "40 %",
+      "conteo": 7
+    },
+    {
+      "clave": "50",
+      "etiqueta": "50 %",
+      "conteo": 10
+    },
+    {
+      "clave": "60",
+      "etiqueta": "60 %",
+      "conteo": 12
+    },
+    {
+      "clave": "70",
+      "etiqueta": "70 %",
+      "conteo": 5
+    },
+    {
+      "clave": "80",
+      "etiqueta": "80 %",
+      "conteo": 9
+    },
+    {
+      "clave": "90",
+      "etiqueta": "90 %",
+      "conteo": 8
+    },
+    {
+      "clave": "100",
+      "etiqueta": "100 %",
+      "conteo": 9
+    }
+  ],
+  "magnitud_dr": [
+    {
+      "clave": "0",
+      "etiqueta": "0 %",
+      "conteo": 0
+    },
+    {
+      "clave": "10",
+      "etiqueta": "10 %",
+      "conteo": 7
+    },
+    {
+      "clave": "20",
+      "etiqueta": "20 %",
+      "conteo": 13
+    },
+    {
+      "clave": "30",
+      "etiqueta": "30 %",
+      "conteo": 16
+    },
+    {
+      "clave": "40",
+      "etiqueta": "40 %",
+      "conteo": 7
+    },
+    {
+      "clave": "50",
+      "etiqueta": "50 %",
+      "conteo": 10
+    },
+    {
+      "clave": "60",
+      "etiqueta": "60 %",
+      "conteo": 12
+    },
+    {
+      "clave": "70",
+      "etiqueta": "70 %",
+      "conteo": 5
+    },
+    {
+      "clave": "80",
+      "etiqueta": "80 %",
+      "conteo": 9
+    },
+    {
+      "clave": "90",
+      "etiqueta": "90 %",
+      "conteo": 8
+    },
+    {
+      "clave": "100",
+      "etiqueta": "100 %",
+      "conteo": 9
+    }
+  ]
+}

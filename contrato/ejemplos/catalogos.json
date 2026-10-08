@@ -1,0 +1,103 @@
+{
+  "temporadas": [
+    {
+      "codigo": "LR2020",
+      "nombre": "LR2020"
+    },
+    {
+      "codigo": "SR2020",
+      "nombre": "SR2020"
+    },
+    {
+      "codigo": "LR2021",
+      "nombre": "LR2021"
+    },
+    {
+      "codigo": "SR2021",
+      "nombre": "SR2021"
+    }
+  ],
+  "danos": [
+    {
+      "codigo": "G",
+      "nombre": "Crecimiento sano"
+    },
+    {
+      "codigo": "DR",
+      "nombre": "Sequia"
+    },
+    {
+      "codigo": "DS",
+      "nombre": "Enfermedad"
+    },
+    {
+      "codigo": "FD",
+      "nombre": "Inundacion"
+    },
+    {
+      "codigo": "ND",
+      "nombre": "Deficiencia de nutrientes"
+    },
+    {
+      "codigo": "PS",
+      "nombre": "Plaga"
+    },
+    {
+      "codigo": "WD",
+      "nombre": "Maleza"
+    },
+    {
+      "codigo": "WN",
+      "nombre": "Viento"
+    }
+  ],
+  "etapas": [
+    {
+      "codigo": "S",
+      "nombre": "Siembra"
+    },
+    {
+      "codigo": "V",
+      "nombre": "Vegetativa"
+    },
+    {
+      "codigo": "F",
+      "nombre": "Floracion"
+    },
+    {
+      "codigo": "M",
+      "nombre": "Madurez"
+    }
+  ],
+  "tipos_captura": [
+    {
+      "codigo": "inicial",
+      "nombre": "Fotografia de referencia inicial"
+    },
+    {
+      "codigo": "seguimiento",
+      "nombre": "Fotografia de seguimiento periodico"
+    },
+    {
+      "codigo": "reclamo",
+      "nombre": "Fotografia de reclamo"
+    }
+  ],
+  "paleta": {
+    "principal": "#2E6F40",
+    "secundario": "#C9A227",
+    "terciario": "#8C3B2E",
+    "neutro": "#4A4A4A",
+    "claro": "#B8C9BC"
+  },
+  "secuencia_colores": [
+    "#2E6F40",
+    "#C9A227",
+    "#8C3B2E",
+    "#3C6E93",
+    "#7A5C99",
+    "#B87333",
+    "#5B8C5A",
+    "#A6A6A6"
+  ]
+}

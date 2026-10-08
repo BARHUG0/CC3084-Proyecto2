@@ -1,0 +1,92 @@
+[
+  {
+    "id": "ID_SINT0002",
+    "real": 80.0,
+    "predicho": 53.46153846153846,
+    "error": -26.53846153846154,
+    "temporada": "SR2020",
+    "etapa": "S",
+    "dano": "DR"
+  },
+  {
+    "id": "ID_SINT0012",
+    "real": 10.0,
+    "predicho": 53.46153846153846,
+    "error": 43.46153846153846,
+    "temporada": "SR2021",
+    "etapa": null,
+    "dano": "DR"
+  },
+  {
+    "id": "ID_SINT0102",
+    "real": 30.0,
+    "predicho": 53.46153846153846,
+    "error": 23.46153846153846,
+    "temporada": "SR2021",
+    "etapa": "V",
+    "dano": "DR"
+  },
+  {
+    "id": "ID_SINT0080",
+    "real": 10.0,
+    "predicho": 53.46153846153846,
+    "error": 43.46153846153846,
+    "temporada": "LR2020",
+    "etapa": "M",
+    "dano": "DR"
+  },
+  {
+    "id": "ID_SINT0021",
+    "real": 40.0,
+    "predicho": 53.46153846153846,
+    "error": 13.46153846153846,
+    "temporada": "SR2021",
+    "etapa": "S",
+    "dano": "DR"
+  },
+  {
+    "id": "ID_SINT0214",
+    "real": 40.0,
+    "predicho": 53.46153846153846,
+    "error": 13.46153846153846,
+    "temporada": "SR2021",
+    "etapa": "F",
+    "dano": "DR"
+  },
+  {
+    "id": "ID_SINT0275",
+    "real": 20.0,
+    "predicho": 53.46153846153846,
+    "error": 33.46153846153846,
+    "temporada": "LR2021",
+    "etapa": "F",
+    "dano": "DR"
+  },
+  {
+    "id": "ID_SINT0257",
+    "real": 10.0,
+    "predicho": 53.46153846153846,
+    "error": 43.46153846153846,
+    "temporada": "LR2021",
+    "etapa": "M",
+    "dano": "DR"
+  },
+  {
+    "id": "ID_SINT0159",
+    "real": 50.0,
+    "predicho": 53.46153846153846,
+    "error": 3.46153846153846,
+    "temporada": "SR2020",
+    "etapa": null,
+    "dano": "DR"
+  },
+  {
+    "id": "ID_SINT0015",
+    "real": 10.0,
+    "predicho": 53.46153846153846,
+    "error": 43.46153846153846,
+    "temporada": "LR2020",
+    "etapa": "S",
+    "dano": "DR"
+  }
+]
