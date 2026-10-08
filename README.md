@@ -84,6 +84,29 @@ reanudable: si se interrumpe, la misma orden continua sin reprocesar lo ya cache
 Cada cuaderno guarda sus figuras en `informe/figuras` con el prefijo del cuaderno
 correspondiente (`02_`, `03_`).
 
+## Aplicacion web
+
+La API se levanta con `uvicorn src.api:app --port 8000` sobre los datos reales. Sin datos
+descargados, el backend de demostracion crea un entorno sintetico en `data/demo/`:
+
+```bash
+python -m src.demo
+python -m src.demo --regenerar --registros 1000
+python -m src.demo --vacio
+```
+
+`--vacio` sirve la API sin datos ni modelos para revisar los estados vacios de la aplicacion.
+
+La aplicacion requiere Node.js 20.19 o superior y se conecta a la API del puerto 8000:
+
+```bash
+cd app
+npm install
+npm run dev
+```
+
+Abra `http://127.0.0.1:5173`. `npm run tipos` regenera los tipos desde `contrato/openapi.json`.
+
 ## Fuentes
 
 [CGIAR Eyes on the Ground Challenge en Zindi](https://zindi.africa/competitions/cgiar-eyes-on-the-ground-challenge)
