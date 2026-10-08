@@ -1,3 +1,5 @@
+import { useEffect } from "react"
+
 import type { ModeloInfo } from "@/api/cliente"
 import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
@@ -5,7 +7,11 @@ import { TODOS, useModeloSeleccionado } from "@/lib/seleccion"
 
 export function SelectorModelos({ modelos }: { modelos: Pick<ModeloInfo, "id" | "nombre">[] }) {
   const [seleccion, setSeleccion] = useModeloSeleccionado()
-  const valor = seleccion === TODOS || modelos.some((m) => m.id === seleccion) ? seleccion : TODOS
+  const valida = seleccion === TODOS || modelos.some((m) => m.id === seleccion)
+  const valor = valida ? seleccion : TODOS
+  useEffect(() => {
+    if (!valida) setSeleccion(TODOS)
+  }, [valida, setSeleccion])
   return (
     <div className="flex items-center gap-2">
       <Label htmlFor="selector-modelos" className="font-head">

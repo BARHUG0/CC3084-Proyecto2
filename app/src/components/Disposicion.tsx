@@ -1,5 +1,5 @@
 import { Sprout } from "lucide-react"
-import { NavLink, Outlet } from "react-router"
+import { NavLink, Outlet, useSearchParams } from "react-router"
 
 import { useSalud } from "@/api/consultas"
 import { SECCIONES } from "@/components/navegacion"
@@ -15,6 +15,8 @@ function IndicadorSalud() {
 }
 
 export function Disposicion() {
+  const [parametros] = useSearchParams()
+  const busqueda = parametros.toString()
   return (
     <div className="flex min-h-svh flex-col">
       <header className="sticky top-0 z-40 border-b-4 bg-background">
@@ -32,7 +34,7 @@ export function Disposicion() {
             {SECCIONES.map(({ ruta, titulo, icono: Icono }) => (
               <NavLink
                 key={ruta}
-                to={ruta}
+                to={busqueda ? `${ruta}?${busqueda}` : ruta}
                 end={ruta === "/"}
                 className={({ isActive }) =>
                   cn(

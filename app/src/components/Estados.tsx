@@ -27,7 +27,7 @@ export function Cargando({ alto = "h-64", className }: { alto?: string; classNam
   return <Skeleton className={cn("w-full", alto, className)} />
 }
 
-type ConsultaBasica<T> = { data: T | undefined; error: unknown; isPending: boolean }
+type ConsultaBasica<T> = { data: T | undefined; error: unknown; isPending: boolean; isError?: boolean }
 
 export function Contenido<T>({
   consulta,
@@ -45,7 +45,18 @@ export function Contenido<T>({
   if (consulta.isPending) return <Cargando alto={alto} />
   if (consulta.data === undefined) return <AvisoError error={consulta.error} />
   if (esVacio?.(consulta.data)) return <Vacio titulo="Sin datos" descripcion={mensajeVacio} />
-  return <>{children(consulta.data)}</>
+  return (
+    <>
+      {consulta.isError && (
+        <Alert status="warning" className="mb-4">
+          <AlertTriangle />
+          <AlertTitle className="font-head">Datos desactualizados</AlertTitle>
+          <AlertDescription>Se muestra la última lectura conocida; la API no respondió a la actualización.</AlertDescription>
+        </Alert>
+      )}
+      {children(consulta.data)}
+    </>
+  )
 }
 
 export function Vacio({ titulo, descripcion, children }: { titulo: string; descripcion?: string; children?: ReactNode }) {

@@ -23,11 +23,20 @@ function Indicador({ activo, texto }: { activo: boolean; texto: string }) {
   )
 }
 
-function EstadoSistema({ salud }: { salud: Salud }) {
+function EstadoSistema({ salud, desactualizado }: { salud: Salud; desactualizado: boolean }) {
   return (
     <div className="flex flex-col gap-4">
+      {desactualizado && (
+        <Alert status="warning">
+          <AlertTitle className="font-head">Sin conexión</AlertTitle>
+          <AlertDescription>Se muestra la última lectura conocida; la API no responde ahora.</AlertDescription>
+        </Alert>
+      )}
       <ul className="flex flex-col gap-2 text-sm">
-        <Indicador activo texto={`API en línea, versión ${salud.version}`} />
+        <Indicador
+          activo={!desactualizado}
+          texto={desactualizado ? `API sin conexión ahora, última versión conocida ${salud.version}` : `API en línea, versión ${salud.version}`}
+        />
         <Indicador activo={salud.datos_disponibles} texto={salud.datos_disponibles ? "Conjunto de modelado disponible" : "Sin conjunto de modelado"} />
         <Indicador
           activo={salud.modelos_disponibles.length > 0}
@@ -118,8 +127,8 @@ export default function Inicio() {
         <div className="flex flex-col gap-6">
           <Bloque titulo="Estado del sistema">
             {salud.isPending && <Cargando alto="h-32" />}
-            {salud.isError && <AvisoError error={salud.error} />}
-            {salud.data && <EstadoSistema salud={salud.data} />}
+            {salud.isError && !salud.data && <AvisoError error={salud.error} />}
+            {salud.data && <EstadoSistema salud={salud.data} desactualizado={salud.isError} />}
           </Bloque>
           <Bloque titulo="Escala de magnitud" descripcion="Porcentaje del cultivo dañado por sequía. El color siempre acompaña al número.">
             <EscalaMagnitud />
