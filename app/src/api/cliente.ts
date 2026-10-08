@@ -12,17 +12,13 @@ export type Atributos = Esquemas["Atributos"]
 export type Conteo = Esquemas["Conteo"]
 export type ResumenDatos = Esquemas["ResumenDatos"]
 export type Registro = Esquemas["Registro"]
-export type PaginaRegistros = Esquemas["PaginaRegistros"]
 export type Distribucion = Esquemas["Distribucion"]
 export type Dispersion = Esquemas["Dispersion"]
-export type Correlacion = Esquemas["Correlacion"]
 export type ModeloInfo = Esquemas["ModeloInfo"]
 export type ModeloDetalle = Esquemas["ModeloDetalle"]
 export type Metricas = Esquemas["Metricas"]
 export type PuntoPrediccion = Esquemas["PuntoPrediccion"]
-export type ErrorGrupo = Esquemas["ErrorGrupo"]
 export type Prediccion = Esquemas["Prediccion"]
-export type PrediccionModelo = Esquemas["PrediccionModelo"]
 
 export type FiltrosRegistros = NonNullable<operations["listar_registros"]["parameters"]["query"]>
 export type ParametrosDistribucion = NonNullable<operations["obtener_distribucion"]["parameters"]["query"]>
