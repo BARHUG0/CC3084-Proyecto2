@@ -70,6 +70,12 @@ def _liberar(disp):
         torch.mps.empty_cache()
 
 
+def _precision_mixta(disp):
+    # bf16 duplica el rendimiento en MPS; CUDA solo lo usa si la GPU lo soporta.
+    activa = disp.type == "mps" or (disp.type == "cuda" and torch.cuda.is_bf16_supported())
+    return torch.autocast(device_type=disp.type, dtype=torch.bfloat16, enabled=activa)
+
+
 def abrir_imagen(ruta):
     # draft decodifica el JPEG a escala reducida; las fotos originales tienen varios megapixeles.
     with Image.open(ruta) as imagen:
@@ -128,7 +134,7 @@ def _entrenar_epoca(red, cargador, optimizador, descongelar, disp):
     total = torch.zeros((), device=disp)
     for imagenes, objetivos in cargador:
         imagenes, objetivos = imagenes.to(disp), objetivos.to(disp)
-        with torch.autocast(device_type=disp.type, dtype=torch.bfloat16):
+        with _precision_mixta(disp):
             salida = red(imagenes).squeeze(1)
         perdida = criterio(salida.float(), objetivos)
         optimizador.zero_grad(set_to_none=True)
@@ -141,8 +147,9 @@ def _entrenar_epoca(red, cargador, optimizador, descongelar, disp):
 @torch.no_grad()
 def _predecir_cargador(red, cargador, disp):
     red.eval()
-    salidas = [red(imagenes.to(disp)).squeeze(1) for imagenes, _ in cargador]
-    return torch.cat(salidas).float().cpu().numpy()
+    with _precision_mixta(disp):
+        salidas = [red(imagenes.to(disp)).squeeze(1).float() for imagenes, _ in cargador]
+    return torch.cat(salidas).cpu().numpy()
 
 
 def _ajustar(entrenamiento, validacion, tasa, descongelar, epocas, pesos, dir_imagenes, disp):
@@ -208,7 +215,8 @@ class ResNetMagnitud(ModeloMagnitud):
     @torch.no_grad()
     def predecir(self, imagen, atributos):
         tensor = TRANSFORMACION_EVALUACION(imagen.convert("RGB")).unsqueeze(0).to(self.dispositivo)
-        return 100 * float(self.red(tensor).squeeze())
+        with _precision_mixta(self.dispositivo):
+            return 100 * float(self.red(tensor).squeeze())
 
     def predecir_lote(self, df, dir_imagenes=DIR_IMAGENES):
         cargador = _cargador(df, dir_imagenes, TRANSFORMACION_EVALUACION, mezclar=False)
