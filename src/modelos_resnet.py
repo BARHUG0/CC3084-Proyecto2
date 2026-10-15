@@ -20,22 +20,33 @@ LADO_DECODIFICACION = 512
 MEDIA_IMAGENET = (0.485, 0.456, 0.406)
 DESVIACION_IMAGENET = (0.229, 0.224, 0.225)
 
-TRANSFORMACION_EVALUACION = transforms.Compose(
-    [
-        transforms.Resize(256),
-        transforms.CenterCrop(LADO_ENTRADA),
-        transforms.ToTensor(),
-        transforms.Normalize(MEDIA_IMAGENET, DESVIACION_IMAGENET),
-    ]
-)
-TRANSFORMACION_ENTRENAMIENTO = transforms.Compose(
-    [
-        transforms.RandomResizedCrop(LADO_ENTRADA, scale=(0.7, 1.0)),
-        transforms.RandomHorizontalFlip(),
-        transforms.ToTensor(),
-        transforms.Normalize(MEDIA_IMAGENET, DESVIACION_IMAGENET),
-    ]
-)
+
+
+def transformacion_evaluacion(lado=LADO_ENTRADA):
+    # Resize(256) para 224 y la misma proporcion para otros lados.
+    return transforms.Compose(
+        [
+            transforms.Resize(int(lado * 256 / 224)),
+            transforms.CenterCrop(lado),
+            transforms.ToTensor(),
+            transforms.Normalize(MEDIA_IMAGENET, DESVIACION_IMAGENET),
+        ]
+    )
+
+
+def transformacion_entrenamiento(lado=LADO_ENTRADA):
+    return transforms.Compose(
+        [
+            transforms.RandomResizedCrop(lado, scale=(0.7, 1.0)),
+            transforms.RandomHorizontalFlip(),
+            transforms.ToTensor(),
+            transforms.Normalize(MEDIA_IMAGENET, DESVIACION_IMAGENET),
+        ]
+    )
+
+
+TRANSFORMACION_EVALUACION = transformacion_evaluacion()
+TRANSFORMACION_ENTRENAMIENTO = transformacion_entrenamiento()
 
 PESOS_IMAGENET = models.ResNet50_Weights.IMAGENET1K_V1
 TASAS_APRENDIZAJE = (1e-4, 3e-4)
@@ -44,6 +55,17 @@ TAMANO_LOTE = 16
 EPOCAS_MAXIMAS = 15
 PACIENCIA = 3
 DECAIMIENTO_PESOS = 1e-4
+# Receta de resnet50_ajustada, elegida con experimentos en tres pliegues por campo.
+PESOS_AJUSTADA = models.ResNet50_Weights.IMAGENET1K_V2
+RECETA_AJUSTADA = {
+    "tasa_aprendizaje": 1e-3,
+    "factor_base": 0.1,
+    "descongelar": "todo",
+    "coseno": True,
+    "epocas": 10,
+    "tta": True,
+}
+LADOS_AJUSTADA = (224, 320)
 # Con spawn (macOS) cada worker tarda ~5 s en cerrar; forkserver no existe en Windows.
 CONTEXTO_WORKERS = "forkserver" if "forkserver" in multiprocessing.get_all_start_methods() else None
 
@@ -114,13 +136,16 @@ def construir_red(pesos=None, descongelar="cabeza"):
     for parametro in red.parameters():
         parametro.requires_grad = False
     red.fc = nn.Linear(red.fc.in_features, 1)
-    if descongelar == "ultimo_bloque":
-        for parametro in red.layer4.parameters():
+    if descongelar in ("ultimo_bloque", "todo"):
+        for parametro in (red if descongelar == "todo" else red.layer4).parameters():
             parametro.requires_grad = True
     return red
 
 
 def _modo_entrenamiento(red, descongelar):
+    if descongelar == "todo":
+        red.train()
+        return
     # La parte congelada queda en eval para que BatchNorm conserve las estadisticas de ImageNet.
     red.eval()
     red.fc.train()
@@ -144,38 +169,61 @@ def _entrenar_epoca(red, cargador, optimizador, descongelar, disp):
     return float(total) / len(cargador.dataset)
 
 
+def _salida(red, imagenes, tta):
+    salida = red(imagenes).squeeze(1).float()
+    if tta:
+        salida = (salida + red(torch.flip(imagenes, dims=[3])).squeeze(1).float()) / 2
+    return salida
+
+
 @torch.no_grad()
-def _predecir_cargador(red, cargador, disp):
+def _predecir_cargador(red, cargador, disp, tta=False):
     red.eval()
     with _precision_mixta(disp):
-        salidas = [red(imagenes.to(disp)).squeeze(1).float() for imagenes, _ in cargador]
+        salidas = [_salida(red, imagenes.to(disp), tta) for imagenes, _ in cargador]
     return torch.cat(salidas).cpu().numpy()
 
 
-def _ajustar(entrenamiento, validacion, tasa, descongelar, epocas, pesos, dir_imagenes, disp):
+def _optimizador(red, tasa, factor_base):
+    if factor_base == 1.0:
+        return torch.optim.AdamW([p for p in red.parameters() if p.requires_grad], lr=tasa, weight_decay=DECAIMIENTO_PESOS)
+    base = [p for nombre, p in red.named_parameters() if p.requires_grad and not nombre.startswith("fc.")]
+    grupos = [{"params": list(red.fc.parameters()), "lr": tasa}, {"params": base, "lr": tasa * factor_base}]
+    return torch.optim.AdamW(grupos, weight_decay=DECAIMIENTO_PESOS)
+
+
+def _ajustar(
+    entrenamiento, validacion, tasa, descongelar, epocas, pesos, dir_imagenes, disp,
+    lado=LADO_ENTRADA, factor_base=1.0, coseno=False, tta=False,
+):
     torch.manual_seed(SEMILLA)
     red = construir_red(pesos, descongelar).to(disp)
-    optimizador = torch.optim.AdamW(
-        [p for p in red.parameters() if p.requires_grad], lr=tasa, weight_decay=DECAIMIENTO_PESOS
-    )
-    cargador_entrenamiento = _cargador(entrenamiento, dir_imagenes, TRANSFORMACION_ENTRENAMIENTO, mezclar=True)
+    optimizador = _optimizador(red, tasa, factor_base)
+    # Con coseno se entrena el numero fijo de epocas y se conserva la ultima; sin coseno hay parada temprana.
+    programador = torch.optim.lr_scheduler.CosineAnnealingLR(optimizador, epocas) if coseno else None
+    cargador_entrenamiento = _cargador(entrenamiento, dir_imagenes, transformacion_entrenamiento(lado), mezclar=True)
     cargador_validacion = None
     if validacion is not None:
-        cargador_validacion = _cargador(validacion, dir_imagenes, TRANSFORMACION_EVALUACION, mezclar=False)
+        cargador_validacion = _cargador(validacion, dir_imagenes, transformacion_evaluacion(lado), mezclar=False)
         real = validacion["magnitud"].to_numpy(dtype=float)
 
     curva, mejor, sin_mejora = [], None, 0
     for epoca in range(1, epocas + 1):
         inicio = time.perf_counter()
         punto = {"epoca": epoca, "perdida_entrenamiento": _entrenar_epoca(red, cargador_entrenamiento, optimizador, descongelar, disp)}
+        if programador:
+            programador.step()
         if cargador_validacion is not None:
-            predicho = _predecir_cargador(red, cargador_validacion, disp)
+            predicho = _predecir_cargador(red, cargador_validacion, disp, tta)
             valores = metricas(real, np.clip(100 * predicho, 0, 100))
             punto["perdida_validacion"] = float(np.mean((predicho - real / 100) ** 2))
             punto["mae_validacion"] = valores["mae"]
         curva.append(punto)
         print(f"  epoca {epoca}: {punto} ({time.perf_counter() - inicio:.0f} s)", flush=True)
         if cargador_validacion is None:
+            continue
+        if coseno:
+            mejor = {"epoca": epoca, "perdida": punto["perdida_validacion"], "rmse": valores["rmse"], "mae": valores["mae"]}
             continue
         if mejor is None or punto["perdida_validacion"] < mejor["perdida"]:
             mejor = {"epoca": epoca, "perdida": punto["perdida_validacion"], "rmse": valores["rmse"], "mae": valores["mae"]}
@@ -205,6 +253,14 @@ class ResNetMagnitud(ModeloMagnitud):
         self.ruta_artefacto.parent.mkdir(parents=True, exist_ok=True)
         torch.save({"state_dict": self.red.state_dict(), "configuracion": self.configuracion}, self.ruta_artefacto)
 
+    @property
+    def _lado(self):
+        return self.configuracion.get("lado", LADO_ENTRADA)
+
+    @property
+    def _tta(self):
+        return self.configuracion.get("tta", False)
+
     def cargar(self):
         artefacto = torch.load(self.ruta_artefacto, map_location=self.dispositivo)
         self.configuracion = artefacto["configuracion"]
@@ -214,13 +270,22 @@ class ResNetMagnitud(ModeloMagnitud):
 
     @torch.no_grad()
     def predecir(self, imagen, atributos):
-        tensor = TRANSFORMACION_EVALUACION(imagen.convert("RGB")).unsqueeze(0).to(self.dispositivo)
+        tensor = transformacion_evaluacion(self._lado)(imagen.convert("RGB")).unsqueeze(0).to(self.dispositivo)
         with _precision_mixta(self.dispositivo):
-            return 100 * float(self.red(tensor).squeeze())
+            return 100 * float(_salida(self.red, tensor, self._tta).squeeze())
 
     def predecir_lote(self, df, dir_imagenes=DIR_IMAGENES):
-        cargador = _cargador(df, dir_imagenes, TRANSFORMACION_EVALUACION, mezclar=False)
-        return 100 * _predecir_cargador(self.red, cargador, self.dispositivo)
+        cargador = _cargador(df, dir_imagenes, transformacion_evaluacion(self._lado), mezclar=False)
+        return 100 * _predecir_cargador(self.red, cargador, self.dispositivo, self._tta)
+
+
+class ResNetAjustada(ResNetMagnitud):
+    id = "resnet50_ajustada"
+    nombre = "ResNet50 ajustada"
+    descripcion = (
+        "ResNet50 con pesos ImageNet V2 ajustada por completo, con tasas por capa, programa coseno, "
+        "entrada de 320 px y promedio con la imagen volteada."
+    )
 
 
 def ejecutar_resnet(
@@ -268,18 +333,77 @@ def ejecutar_resnet(
     modelo.configuracion = dict(parametros)
     modelo.guardar()
 
+    return _evaluar_y_guardar(
+        modelo, conjunto, dir_imagenes, disp, tiempo_entrenamiento_s,
+        hiperparametros={**parametros, "dispositivo": disp.type, "pesos": pesos.name if pesos else None},
+        historial_ajuste=historial,
+        curva_entrenamiento=curvas[elegido],
+        dir_resultados=dir_resultados,
+    )
+
+
+def _evaluar_y_guardar(modelo, conjunto, dir_imagenes, disp, tiempo_entrenamiento_s, dir_resultados, **resultados):
+    _, prueba = entrenamiento_y_prueba(conjunto, solo_dr=True)
     _, prueba_completa = entrenamiento_y_prueba(conjunto)
     inicio = time.perf_counter()
     predicho_dr = modelo.predecir_lote(prueba, dir_imagenes)
     _sincronizar(disp)
     tiempo_inferencia_ms = 1000 * (time.perf_counter() - inicio) / max(1, len(prueba))
-
     return guardar_resultados(
         modelo_id=modelo.id,
         prueba=prueba_completa,
         predicho=completar_con_regla(prueba_completa, predicho_dr),
         tiempo_entrenamiento_s=tiempo_entrenamiento_s,
         tiempo_inferencia_ms=tiempo_inferencia_ms,
+        dir_resultados=dir_resultados,
+        **resultados,
+    )
+
+
+def ejecutar_resnet_ajustada(
+    conjunto,
+    dir_modelos=DIR_MODELOS,
+    dir_resultados=DIR_RESULTADOS,
+    dir_imagenes=DIR_IMAGENES,
+    lados=LADOS_AJUSTADA,
+    epocas=RECETA_AJUSTADA["epocas"],
+    pesos=PESOS_AJUSTADA,
+):
+    receta = {**RECETA_AJUSTADA, "epocas": epocas}
+    opciones = {k: receta[k] for k in ("factor_base", "coseno", "tta")}
+    entrenamiento, _ = entrenamiento_y_prueba(conjunto, solo_dr=True)
+    indices_ajuste, indices_validacion = pliegues_por_campo(entrenamiento)[0]
+    ajuste, validacion = entrenamiento.iloc[indices_ajuste], entrenamiento.iloc[indices_validacion]
+    disp = dispositivo()
+    print(f"Dispositivo: {disp.type}. Ajuste: {len(ajuste)}, validacion: {len(validacion)}")
+
+    inicio = time.perf_counter()
+    historial, curvas = [], []
+    for lado in lados:
+        print(f"Configuracion: lado={lado}", flush=True)
+        _, curva, ultima = _ajustar(
+            ajuste, validacion, receta["tasa_aprendizaje"], receta["descongelar"], epocas, pesos, dir_imagenes, disp,
+            lado=lado, **opciones,
+        )
+        historial.append({"parametros": {**receta, "lado": lado}, "rmse_validacion": ultima["rmse"], "mae_validacion": ultima["mae"]})
+        curvas.append(curva)
+        _liberar(disp)
+    elegido = min(range(len(historial)), key=lambda i: historial[i]["rmse_validacion"])
+    historial[elegido]["elegido"] = True
+    parametros = historial[elegido]["parametros"]
+
+    print(f"Reentrenamiento con todo el entrenamiento DR: {parametros}", flush=True)
+    modelo = ResNetAjustada(dir_modelos)
+    modelo.red, _, _ = _ajustar(
+        entrenamiento, None, receta["tasa_aprendizaje"], receta["descongelar"], epocas, pesos, dir_imagenes, disp,
+        lado=parametros["lado"], **opciones,
+    )
+    tiempo_entrenamiento_s = time.perf_counter() - inicio
+    modelo.configuracion = dict(parametros)
+    modelo.guardar()
+
+    return _evaluar_y_guardar(
+        modelo, conjunto, dir_imagenes, disp, tiempo_entrenamiento_s,
         hiperparametros={**parametros, "dispositivo": disp.type, "pesos": pesos.name if pesos else None},
         historial_ajuste=historial,
         curva_entrenamiento=curvas[elegido],
