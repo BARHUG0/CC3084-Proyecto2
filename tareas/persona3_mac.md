@@ -75,3 +75,23 @@ Los tiempos de entrenamiento e inferencia que se guardan en `resnet50.json` corr
 
 - `data/procesado/modelos/resnet50.pt`
 - `data/procesado/resultados/resnet50.json`
+
+## ResNet50 ajustada
+
+`resnet50_ajustada` es una segunda versión de la red con otra receta de entrenamiento. La `resnet50` original no cambia: sigue el procedimiento común y es la que se compara con DenseNet121.
+
+La receta y la evidencia que la respalda están en el cuaderno `06b_modelo_resnet_ajustada.ipynb` y en la sección 6.4 del informe.
+
+Para entrenarla:
+
+```bash
+caffeinate -is jupyter nbconvert --to notebook --execute --inplace --ExecutePreprocessor.timeout=-1 notebooks/06b_modelo_resnet_ajustada.ipynb
+```
+
+- **Duración:** unos 32 minutos con el cargador conectado. Entrena en el pliegue de validación con 224 y con 320, y luego reentrena con todo el entrenamiento DR.
+- **Batería:** si la batería se agota, macOS suspende la computadora aunque `caffeinate` esté activo. El proceso se pausa y continúa al conectar el cargador, pero el tiempo de entrenamiento registrado queda inflado.
+
+Archivos para compartir:
+
+- `data/procesado/modelos/resnet50_ajustada.pt`
+- `data/procesado/resultados/resnet50_ajustada.json`
