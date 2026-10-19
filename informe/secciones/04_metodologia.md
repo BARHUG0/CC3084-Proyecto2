@@ -56,7 +56,7 @@ Las dos redes siguen el mismo procedimiento, para que la comparación entre ella
 | Lote y épocas | 16, con precisión mixta; máximo 15 épocas y parada temprana de paciencia 3 |
 | Búsqueda | Tasa de aprendizaje de 1e-4 o 3e-4; se entrena la cabeza o también el último bloque |
 
-Además se entrenó una variante ajustada de ResNet50, descrita en la sección 6.4.
+Además se entrenó una variante ajustada de ResNet50, descrita en la sección 6.6.
 
 ### 4.4 Medición del costo computacional
 
@@ -65,16 +65,18 @@ Además se entrenó una variante ajustada de ResNet50, descrita en la sección 6
   - En los modelos tabulares parte de los atributos ya calculados, así que no incluye su extracción.
   - En las redes incluye la lectura de la fotografía.
 
-Como los modelos se entrenaron en computadoras distintas, los tiempos solo son comparables en orden de magnitud.
+Para que los tiempos sean comparables, los seis modelos finales se entrenaron y evaluaron en el mismo equipo.
 
 ### 4.5 Recursos de cómputo
 
-| Modelos | Equipo | Uso |
-|:--|:--|:--|
-| Modelos tabulares | Laptop con AMD Ryzen 7 8845HS (8 núcleos, 16 hilos), 15.3 GB de RAM y GPU NVIDIA RTX 3050 de 6 GB, con Windows 11 | Los modelos tabulares se entrenan solo en CPU, con la búsqueda en paralelo. |
-| ResNet50 | MacBook Pro con chip M5 Pro | GPU mediante Metal (`mps`) con precisión mixta `bfloat16`. |
+Los seis modelos finales se entrenaron en una laptop con procesador Intel Core i9-13980HX (24 núcleos, 32 hilos), 16 GB de RAM y GPU NVIDIA GeForce RTX 4050 de 6 GB, con Linux (CachyOS), Python 3.14, PyTorch 2.14 y CUDA 13.0.
 
-<!-- pendiente: agregar el equipo usado para densenet121 -->
+| Modelos | Recurso | Uso |
+|:--|:--|:--|
+| Predictor constante, regresión y Random Forest | CPU | La búsqueda del Random Forest valida las combinaciones en paralelo. |
+| ResNet50, ResNet50 ajustada y DenseNet121 | GPU mediante CUDA | Precisión mixta `bfloat16` y lectura de las fotografías con varios procesos en paralelo. |
+
+El desarrollo se repartió entre los equipos de los integrantes. La receta de la ResNet50 ajustada se diseñó en una MacBook Pro con chip M5 Pro, usando la GPU mediante Metal (`mps`), y los modelos tabulares se desarrollaron en una laptop con AMD Ryzen 7 8845HS. El código detecta el dispositivo disponible, por lo que los mismos cuadernos funcionan en CUDA, en Metal o solo en CPU.
 
 ### 4.6 Lenguajes, herramientas y bibliotecas
 
