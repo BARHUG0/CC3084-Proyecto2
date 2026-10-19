@@ -100,9 +100,9 @@ class ModeloSklearn(ModeloMagnitud):
 
 class RegresionExcesoVerde(ModeloSklearn):
     id = "regresion_exceso_verde"
-    nombre = "Regresion lineal sobre exceso de verde"
+    nombre = "Regresión lineal sobre exceso de verde"
     familia = "referencia"
-    descripcion = "Ajusta una recta entre el exceso de verde de la fotografia y la magnitud DR."
+    descripcion = "Ajusta una recta entre el exceso de verde de la fotografía y la magnitud DR."
     entradas = ("exceso_verde",)
     extension = ".joblib"
 
@@ -111,7 +111,7 @@ class RandomForestMagnitud(ModeloSklearn):
     id = "random_forest"
     nombre = "Random Forest"
     familia = "tabular"
-    descripcion = "Bosque aleatorio de regresion sobre atributos globales de color y exposicion."
+    descripcion = "Bosque aleatorio de regresión sobre atributos globales de color y exposición."
     entradas = ATRIBUTOS_BOSQUE
     extension = ".joblib"
 

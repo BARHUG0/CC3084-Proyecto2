@@ -34,14 +34,14 @@ TEMPORADAS = ("LR2020", "SR2020", "LR2021", "SR2021")
 ETAPAS_CRECIMIENTO = {
     "S": "Siembra",
     "V": "Vegetativa",
-    "F": "Floracion",
+    "F": "Floración",
     "M": "Madurez",
 }
 
 TIPOS_DANO = {
-    "DR": "Sequia",
+    "DR": "Sequía",
     "DS": "Enfermedad",
-    "FD": "Inundacion",
+    "FD": "Inundación",
     "G": "Crecimiento sano",
     "ND": "Deficiencia de nutrientes",
     "PS": "Plaga",
@@ -53,9 +53,9 @@ ORDEN_ETAPAS = ("S", "V", "F", "M")
 ORDEN_DANOS = ("G", "DR", "DS", "FD", "ND", "PS", "WD", "WN")
 
 TIPOS_CAPTURA = {
-    "inicial": "Fotografia de referencia inicial",
-    "seguimiento": "Fotografia de seguimiento periodico",
-    "reclamo": "Fotografia de reclamo",
+    "inicial": "Fotografía de referencia inicial",
+    "seguimiento": "Fotografía de seguimiento periódico",
+    "reclamo": "Fotografía de reclamo",
 }
 ORDEN_TIPOS_CAPTURA = ("inicial", "seguimiento", "reclamo")
 

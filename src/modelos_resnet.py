@@ -239,7 +239,7 @@ class ResNetMagnitud(ModeloMagnitud):
     id = "resnet50"
     nombre = "ResNet50"
     familia = "cnn"
-    descripcion = "ResNet50 preentrenada en ImageNet con una salida lineal para la magnitud del dano por sequia."
+    descripcion = "ResNet50 preentrenada en ImageNet con una salida lineal para la magnitud del daño por sequía."
     entradas = ("imagen_rgb",)
     extension = ".pt"
 

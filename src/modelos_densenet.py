@@ -211,7 +211,7 @@ class DenseNetMagnitud(ModeloMagnitud):
     id = "densenet121"
     nombre = "DenseNet121"
     familia = "cnn"
-    descripcion = "DenseNet121 preentrenada en ImageNet con una salida lineal para la magnitud del dano por sequia."
+    descripcion = "DenseNet121 preentrenada en ImageNet con una salida lineal para la magnitud del daño por sequía."
     entradas = ("imagen_rgb",)
     extension = ".pt"
 

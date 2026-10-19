@@ -21,23 +21,23 @@ COLUMNAS_CONTEXTO = (
 )
 
 VARIABLES = {
-    "magnitud": ("Magnitud del dano", "Porcentaje de dano por sequia, de 0 a 100 en pasos de 10.", "numerica", "objetivo"),
-    "dano": ("Tipo de dano", "Diagnostico registrado para la fotografia.", "categorica", "contexto"),
-    "temporada": ("Temporada", "Temporada agricola de la captura.", "categorica", "contexto"),
-    "etapa": ("Etapa de crecimiento", "Etapa fenologica del cultivo.", "categorica", "contexto"),
-    "tipo_captura": ("Tipo de captura", "Fotografia inicial, de seguimiento o de reclamo.", "categorica", "contexto"),
-    "exceso_verde": ("Exceso de verde", "Indice 2g - r - b promedio sobre la miniatura.", "numerica", "atributo"),
-    "saturacion": ("Saturacion", "Saturacion media de los pixeles, de 0 a 1.", "numerica", "atributo"),
+    "magnitud": ("Magnitud del daño", "Porcentaje de daño por sequía, de 0 a 100 en pasos de 10.", "numerica", "objetivo"),
+    "dano": ("Tipo de daño", "Diagnóstico registrado para la fotografía.", "categorica", "contexto"),
+    "temporada": ("Temporada", "Temporada agrícola de la captura.", "categorica", "contexto"),
+    "etapa": ("Etapa de crecimiento", "Etapa fenológica del cultivo.", "categorica", "contexto"),
+    "tipo_captura": ("Tipo de captura", "Fotografía inicial, de seguimiento o de reclamo.", "categorica", "contexto"),
+    "exceso_verde": ("Exceso de verde", "Índice 2g - r - b promedio sobre la miniatura.", "numerica", "atributo"),
+    "saturacion": ("Saturación", "Saturación media de los píxeles, de 0 a 1.", "numerica", "atributo"),
     "brillo": ("Brillo", "Luminancia media en escala de 0 a 255.", "numerica", "atributo"),
-    "contraste": ("Contraste", "Desviacion estandar de la luminancia.", "numerica", "atributo"),
+    "contraste": ("Contraste", "Desviación estándar de la luminancia.", "numerica", "atributo"),
     "media_r": ("Media del canal rojo", "Intensidad media del canal R.", "numerica", "atributo"),
     "media_g": ("Media del canal verde", "Intensidad media del canal G.", "numerica", "atributo"),
     "media_b": ("Media del canal azul", "Intensidad media del canal B.", "numerica", "atributo"),
     "nitidez": ("Nitidez", "Varianza del laplaciano de la luminancia.", "numerica", "atributo"),
-    "megapixeles": ("Megapixeles", "Resolucion de la fotografia original.", "numerica", "atributo"),
-    "aspecto": ("Relacion de aspecto", "Ancho dividido entre alto.", "numerica", "atributo"),
-    "prop_sobreexpuesta": ("Proporcion sobreexpuesta", "Fraccion de pixeles con luminancia muy alta.", "numerica", "atributo"),
-    "prop_subexpuesta": ("Proporcion subexpuesta", "Fraccion de pixeles con luminancia muy baja.", "numerica", "atributo"),
+    "megapixeles": ("Megapíxeles", "Resolución de la fotografía original.", "numerica", "atributo"),
+    "aspecto": ("Relación de aspecto", "Ancho dividido entre alto.", "numerica", "atributo"),
+    "prop_sobreexpuesta": ("Proporción sobreexpuesta", "Fracción de píxeles con luminancia muy alta.", "numerica", "atributo"),
+    "prop_subexpuesta": ("Proporción subexpuesta", "Fracción de píxeles con luminancia muy baja.", "numerica", "atributo"),
 }
 
 
