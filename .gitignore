@@ -1,5 +1,11 @@
 TEMP/
-data/
+data/*
+!data/procesado/
+data/procesado/*
+!data/procesado/conjunto_modelado.parquet
+!data/procesado/resultados/
+!data/procesado/modelos/
+data/procesado/modelos/*.pt
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

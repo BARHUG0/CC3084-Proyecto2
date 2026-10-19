@@ -3,3 +3,4 @@
 *.jpg binary
 *.parquet binary
 *.zip binary
+*.joblib binary
