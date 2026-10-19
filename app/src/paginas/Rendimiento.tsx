@@ -143,7 +143,7 @@ function ResumenMetricas({ alcance, modelos }: { alcance: Alcance; modelos: Mode
           rmse: m.rmse,
         }))
         return (
-          <div className="grid gap-6 xl:grid-cols-[3fr_2fr]">
+          <div className="grid gap-6">
             <TablaMetricas metricas={metricas} modelos={modelos} />
             <GraficoBarras
               datos={filas}
@@ -152,8 +152,11 @@ function ResumenMetricas({ alcance, modelos }: { alcance: Alcance; modelos: Mode
                 { clave: "mae", nombre: "MAE", color: colorSerie(0) },
                 { clave: "rmse", nombre: "RMSE", color: colorSerie(1) },
               ]}
+              horizontal
+              alto={Math.max(240, filas.length * 52)}
+              anchoCategoria={270}
               formato={(v) => numero(v, 1)}
-              etiquetaY="Error"
+              etiquetaX="Error, en puntos de magnitud"
             />
           </div>
         )
