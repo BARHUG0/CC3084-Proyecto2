@@ -11,7 +11,7 @@ pequenos productores de Africa oriental.
 | `src` | Modulos de descarga, carga, limpieza, extraccion de caracteristicas, tablas y graficos |
 | `notebooks` | Cuadernos de adquisicion y analisis exploratorio |
 | `informe` | Informe final y sus figuras |
-| `data` | Datos descargados y derivados (excluido del control de versiones) |
+| `data` | Datos descargados y derivados; solo se versionan el conjunto de modelado, los resultados y los modelos tabulares |
 
 ## Requisitos
 
@@ -86,8 +86,23 @@ correspondiente (`02_`, `03_`).
 
 ## Aplicacion web
 
-La API se levanta con `uvicorn src.api:app --port 8000` sobre los datos reales. Sin datos
-descargados, el backend de demostracion crea un entorno sintetico en `data/demo/`:
+La API se levanta con `uvicorn src.api:app --port 8000` sobre los datos reales. El repositorio ya
+incluye lo necesario para explorar los datos y comparar los seis modelos:
+
+| Archivo | Contenido |
+|---|---|
+| `data/procesado/conjunto_modelado.parquet` | Conjunto de modelado con la particion por campo |
+| `data/procesado/resultados/*.json` | Metricas, predicciones de prueba y ajuste de cada modelo |
+| `data/procesado/modelos/*.joblib` | Predictor constante, regresion sobre exceso de verde y Random Forest |
+
+Los pesos de las redes (`resnet50.pt`, `resnet50_ajustada.pt` y `densenet121.pt`, unos 220 MB) y
+las fotografias no se versionan. Para predecir con las redes, copie los `.pt` de la carpeta
+compartida del equipo en `data/procesado/modelos/`. Para ver la fotografia de cada registro,
+descargue las imagenes con `python -m src.descarga imagenes`. Sin esos archivos la aplicacion sigue
+funcionando y marca las redes como "Sin artefacto".
+
+Para revisar la interfaz sin datos, el backend de demostracion crea un entorno sintetico en
+`data/demo/`:
 
 ```bash
 python -m src.demo
