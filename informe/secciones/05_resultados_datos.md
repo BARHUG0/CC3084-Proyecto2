@@ -40,25 +40,25 @@ La limpieza conservó los registros y agregó indicadores de calidad, en lugar d
 | Cultivo o sitio no identificado | 4 745 | Se conservaron sin imputación. |
 | Magnitud fuera de dominio | 0 | No se requirió corrección. |
 | Identificador o archivo duplicado | 0 | No se eliminó ningún registro. |
-| Sequía con magnitud cero | 6 | Se conservaron como posible ruido de etiqueta. |
+| Sequía con magnitud cero | 6 | Se excluyeron del modelado como etiquetas incoherentes, porque una sequía diagnosticada debería tener magnitud positiva. |
 | Magnitud positiva con daño distinto de sequía | 0 | No se observó esta incoherencia. |
 
 : Tabla 5.3. Bitácora de limpieza y decisiones.
 
-El indicador `apto_modelado` marca 23 356 registros de entrenamiento con campo identificado. Las 34 731 fotografías se leyeron sin errores, y ninguna conservó los metadatos EXIF de marca y modelo del teléfono. Por eso el análisis se basa solo en los píxeles.
+El indicador `apto_modelado` marca 23 350 registros de entrenamiento. Un registro es apto si su fotografía existe, no es una copia, su magnitud es válida, su etiqueta es coherente y su temporada y su campo están identificados. Las 34 731 fotografías se leyeron sin errores, y ninguna conservó los metadatos EXIF de marca y modelo del teléfono. Por eso el análisis se basa solo en los píxeles.
 
 ### 5.3 Preprocesamiento
 
 **Atributos de imagen.** El módulo `src.caracteristicas` recorre las fotografías en paralelo y guarda los atributos en una caché de Parquet. Cada imagen se reduce a una miniatura de 256 píxeles por lado antes de calcular los atributos fotométricos. Se obtienen el exceso de verde, la saturación, el brillo, el contraste, las medias por canal, la nitidez, las proporciones de píxeles sobreexpuestos y subexpuestos, los megapíxeles, la relación de aspecto y la huella perceptual.
 
-**Conjunto de modelado.** El módulo `src.conjunto` une los metadatos aptos para modelado con los atributos de imagen y produce un único archivo, `conjunto_modelado.parquet`, con 23 356 registros de 3 051 campos. De ellos, 4 495 tienen diagnóstico de sequía.
+**Conjunto de modelado.** El módulo `src.conjunto` une los metadatos aptos para modelado con los atributos de imagen y produce un único archivo, `conjunto_modelado.parquet`, con 23 350 registros de 3 051 campos. De ellos, 4 489 tienen diagnóstico de sequía.
 
 **Partición por campo.** Las fotografías de un mismo campo se parecen entre sí, así que separarlas al azar dejaría escenas casi iguales en el entrenamiento y en la prueba. Para evitarlo, la partición asigna campos completos: el 20 % de los campos va a la prueba con `GroupShuffleSplit` y una semilla fija (42). Todo el equipo obtiene la misma partición. Dentro del entrenamiento, la validación usa `GroupKFold` con cinco pliegues, también agrupados por campo.
 
 | Subconjunto | Registros | Registros DR | Campos |
 |:--|--:|--:|--:|
-| Entrenamiento | 18 726 | 3 659 | 2 440 |
-| Prueba | 4 630 | 836 | 611 |
+| Entrenamiento | 18 722 | 3 655 | 2 440 |
+| Prueba | 4 628 | 834 | 611 |
 
 : Tabla 5.4. Partición del conjunto de modelado por campo.
 
