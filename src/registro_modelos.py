@@ -1,7 +1,8 @@
 from src.config import DIR_MODELOS
+from src.modelos_densenet import DenseNetMagnitud
 from src.modelos_tabulares import PredictorConstante
 
-CLASES_MODELOS = (PredictorConstante,)
+CLASES_MODELOS = (PredictorConstante, DenseNetMagnitud)
 
 
 def crear_registro(dir_modelos=DIR_MODELOS):
